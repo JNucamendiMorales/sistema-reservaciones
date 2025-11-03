@@ -1,0 +1,132 @@
+{% extends "theme/base.html" %}
+{% load humanize %}
+
+{% block title %}Confirmación de Pago{% endblock %}
+
+{% block content %}
+
+<!-- Botón "Volver al inicio" arriba y a la izquierda -->
+<div class="max-w-lg mx-auto mt-10 mb-6 flex justify-start">
+  <a href="{% url 'inicio' %}" 
+     class="flex items-center gap-2 bg-gray-300 hover:bg-gray-400 text-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200 px-4 py-2 rounded font-semibold transition">
+    <i class="fa-solid fa-arrow-left"></i>
+    Volver al inicio
+  </a>
+</div>
+
+<div class="max-w-lg mx-auto p-8 rounded-lg shadow-lg text-center bg-white dark:bg-gray-800">
+
+  <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto mb-6 h-16 w-16 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+  </svg>
+
+  <h1 class="text-4xl font-bold text-green-600 dark:text-green-400 mb-4">¡Pago exitoso!</h1>
+  <p class="text-lg mb-8 text-gray-900 dark:text-gray-100">Gracias por tu compra en <strong>Reservaciones A&amp;N</strong>.</p>
+
+  <div class="bg-green-50 dark:bg-green-900 p-6 rounded border border-green-200 dark:border-green-700 mb-8 text-left space-y-3">
+    <h2 class="text-2xl font-semibold mb-4 text-green-700 dark:text-green-300">Detalles de tu reserva</h2>
+    <p><span class="font-semibold text-green-800 dark:text-green-200">Salón:</span> <span class="text-green-900 dark:text-green-100">{{ reserva.salon.nombre }}</span></p>
+    <p><span class="font-semibold text-green-800 dark:text-green-200">Fecha de reserva:</span> <span class="text-green-900 dark:text-green-100">{{ reserva.fecha_reserva }}</span></p>
+    <p><span class="font-semibold text-green-800 dark:text-green-200">Total pagado:</span> <span class="text-green-900 dark:text-green-100">${{ total_final|floatformat:2|intcomma|default:"0.00" }} MXN</span></p>
+    {% if descuento_aplicado and descuento_aplicado != "0" %}
+      <p class="text-green-700 dark:text-green-300 mt-2">Descuento aplicado: ${{ descuento_aplicado|floatformat:2|intcomma }} MXN (Código: {{ codigo_ingresado|upper }})</p>
+    {% endif %}
+
+    <div class="mt-6 flex flex-col sm:flex-row justify-center gap-4">
+      <button id="btn-descargar-pdf" 
+              class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded font-semibold transition">
+        Descargar comprobante PDF
+      </button>
+
+      <a href="{% url 'mis_reservaciones' %}" 
+         class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded font-semibold transition flex items-center justify-center">
+        Ver mis reservaciones
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+  document.getElementById("btn-descargar-pdf").addEventListener("click", () => {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    // Márgenes y posición inicial
+    const leftMargin = 20;
+    let verticalPos = 20;
+
+    // Encabezado con título centrado
+    doc.setFontSize(22);
+    doc.setFont("helvetica", "bold");
+    const title = "Comprobante de Pago";
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const titleWidth = doc.getTextWidth(title);
+    doc.text(title, (pageWidth - titleWidth) / 2, verticalPos);
+
+    verticalPos += 10;
+
+    // Línea divisoria
+    doc.setDrawColor(0);
+    doc.setLineWidth(0.5);
+    doc.line(leftMargin, verticalPos, pageWidth - leftMargin, verticalPos);
+
+    verticalPos += 15;
+
+    // Subtítulo empresa o agradecimiento
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "normal");
+    doc.text("Reservaciones A&N", leftMargin, verticalPos);
+
+    verticalPos += 15;
+
+    // Detalles con etiquetas en negrita
+    doc.setFont("helvetica", "bold");
+    doc.text("Salón:", leftMargin, verticalPos);
+    doc.setFont("helvetica", "normal");
+    doc.text("{{ reserva.salon.nombre }}", leftMargin + 35, verticalPos);
+
+    verticalPos += 10;
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Fecha de reserva:", leftMargin, verticalPos);
+    doc.setFont("helvetica", "normal");
+    doc.text("{{ reserva.fecha_reserva }}", leftMargin + 50, verticalPos);
+
+    verticalPos += 10;
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Total pagado:", leftMargin, verticalPos);
+    doc.setFont("helvetica", "normal");
+    doc.text(`${{ total_final|floatformat:2|default:"0.00" }} MXN`, leftMargin + 40, verticalPos);
+
+    {% if descuento_aplicado and descuento_aplicado != "0" %}
+      verticalPos += 10;
+      doc.setFont("helvetica", "bold");
+      doc.text("Descuento aplicado:", leftMargin, verticalPos);
+      doc.setFont("helvetica", "normal");
+      doc.text(`${{ descuento_aplicado|floatformat:2 }} MXN (Código: {{ codigo_ingresado|upper }})`, leftMargin + 60, verticalPos);
+    {% endif %}
+
+    verticalPos += 20;
+
+    // Línea divisoria abajo
+    doc.setDrawColor(0);
+    doc.setLineWidth(0.5);
+    doc.line(leftMargin, verticalPos, pageWidth - leftMargin, verticalPos);
+
+    verticalPos += 15;
+
+    // Mensaje final
+    doc.setFont("helvetica", "italic");
+    doc.setFontSize(12);
+    doc.text("Gracias por tu compra. ¡Te esperamos pronto!", leftMargin, verticalPos);
+
+    // Guardar PDF
+    doc.save("comprobante_reserva.pdf");
+  });
+</script>
+
+{% endblock %}

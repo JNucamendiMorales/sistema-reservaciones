@@ -1,0 +1,45 @@
+{% extends "theme/base.html" %}
+{% load humanize %}
+
+{% block title %}Mis Favoritos{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto mt-10 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg dark:shadow-gray-700">
+  <h1 class="text-3xl font-bold mb-8 text-center text-gray-900 dark:text-gray-100">Mis Favoritos</h1>
+
+  {% if favoritos %}
+    <ul class="space-y-6">
+      {% for favorito in favoritos %}
+      <li class="border border-gray-200 dark:border-gray-700 rounded hover:shadow-md dark:hover:shadow-gray-600 transition">
+        <a href="{% url 'detalle_salon' favorito.salon.id %}" class="flex items-center gap-6 p-4 hover:no-underline text-gray-900 dark:text-gray-100">
+          <!-- Imagen del salón -->
+          <div class="flex-shrink-0 w-32 h-20 overflow-hidden rounded-md border border-gray-300 dark:border-gray-600">
+            {% if favorito.salon.imagen %}
+              <img src="{{ favorito.salon.imagen.url }}" alt="Imagen de {{ favorito.salon.nombre }}" class="object-cover w-full h-full">
+            {% else %}
+              <div class="flex items-center justify-center bg-gray-200 dark:bg-gray-700 text-gray-400 text-sm w-full h-full">
+                Sin imagen
+              </div>
+            {% endif %}
+          </div>
+
+          <!-- Datos del salón -->
+          <div class="flex-1">
+            <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100">{{ favorito.salon.nombre }}</h2>
+            <p class="text-gray-600 dark:text-gray-300">Categoría: {{ favorito.salon.categoria|title }}</p>
+            <p class="text-gray-600 dark:text-gray-300">Capacidad: {{ favorito.salon.capacidad }}</p>
+          </div>
+
+          <!-- Precio -->
+          <div class="text-right">
+            <span class="text-indigo-600 dark:text-indigo-400 font-semibold">${{ favorito.salon.precio|intcomma }} MXN</span>
+          </div>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="text-center text-gray-500 dark:text-gray-400">No tienes salones favoritos aún.</p>
+  {% endif %}
+</div>
+{% endblock %}

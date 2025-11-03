@@ -1,0 +1,32 @@
+{% extends 'theme/base.html' %}
+
+{% block title %}Mi Perfil{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto mt-10 bg-white rounded-lg shadow-lg p-6">
+  <h1 class="text-2xl font-bold mb-4">Mi Perfil</h1>
+
+  <p><strong>Nombre de usuario:</strong> {{ usuario.username }}</p>
+  <p><strong>Correo electrónico:</strong> {{ usuario.email }}</p>
+
+  <div class="mt-6">
+    <h2 class="text-xl font-semibold mb-2">Reservaciones en proceso</h2>
+    {% if tiene_reservaciones %}
+      <ul class="list-disc list-inside text-gray-700">
+        {% for reserva in reservaciones_proceso %}
+          <li>Reservación para el salón: <strong>{{ reserva.salon.nombre }}</strong> (Estado: {{ reserva.estado }})</li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No tienes reservaciones en proceso.</p>
+    {% endif %}
+  </div>
+
+  <form method="post" action="{% url 'logout' %}" class="mt-6">
+    {% csrf_token %}
+    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">
+      Cerrar sesión
+    </button>
+  </form>
+</div>
+{% endblock %}

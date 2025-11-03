@@ -1,0 +1,152 @@
+{% extends "theme/base.html" %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto mt-5 p-8 bg-white dark:bg-gray-800 rounded-xl shadow-lg flex gap-10">
+
+  <!-- Imagen y botón -->
+  <div class="flex flex-col items-center flex-1">
+    <h3 class="mb-4 font-semibold text-xl text-gray-900 dark:text-gray-100">Salón: {{ salon.nombre }}</h3>
+    {% if salon.imagen %}
+      <img src="{{ salon.imagen.url }}" alt="Imagen {{ salon.nombre }}" class="w-full max-w-md rounded-lg object-cover shadow-md" />
+    {% else %}
+      <img src="https://via.placeholder.com/350x220?text=Sin+imagen" alt="Sin imagen disponible" class="w-full max-w-md rounded-lg object-cover shadow-md" />
+    {% endif %}
+    <button
+      id="btn-reservar"
+      class="mt-6 px-8 py-3 text-lg font-semibold rounded-lg
+             bg-blue-600 text-white hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed
+             shadow-md transition-colors duration-200 ease-in-out"
+      disabled
+    >
+      Reservar
+    </button>
+  </div>
+
+  <!-- Calendario -->
+  <div class="flex-1 max-w-sm">
+    <div id="calendar-header" class="flex justify-between items-center mb-4">
+      <button
+        id="btn-prev"
+        class="text-blue-600 font-bold text-xl hover:bg-blue-100 dark:hover:bg-blue-700 rounded-lg px-3 py-1 transition"
+      >
+        &#8592;
+      </button>
+      <h3 id="month-year" class="text-xl font-semibold text-gray-900 dark:text-gray-100"></h3>
+      <button
+        id="btn-next"
+        class="text-blue-600 font-bold text-xl hover:bg-blue-100 dark:hover:bg-blue-700 rounded-lg px-3 py-1 transition"
+      >
+        &#8594;
+      </button>
+    </div>
+
+    <div id="calendar-weekdays" class="grid grid-cols-7 font-semibold text-gray-700 dark:text-gray-300 text-center select-none">
+      <div>Dom</div><div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div>
+    </div>
+
+    <div id="calendar-days" class="grid grid-cols-7 gap-3 mt-3"></div>
+  </div>
+</div>
+
+<script>
+  const fechasReservadas = JSON.parse('{{ fechas_reservadas|escapejs }}');
+  const calendarDays = document.getElementById('calendar-days');
+  const monthYear = document.getElementById('month-year');
+  const btnPrev = document.getElementById('btn-prev');
+  const btnNext = document.getElementById('btn-next');
+  const btnReservar = document.getElementById('btn-reservar');
+
+  let selectedDate = null;
+  let currentDate = new Date();
+
+  function renderCalendar(date) {
+    calendarDays.innerHTML = '';
+    const year = date.getFullYear();
+    const month = date.getMonth();
+
+    const months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    monthYear.textContent = `${months[month]} ${year}`;
+
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+
+    // Espacios para alinear
+    for(let i = 0; i < firstDay.getDay(); i++){
+      const emptyCell = document.createElement('div');
+      calendarDays.appendChild(emptyCell);
+    }
+
+    const today = new Date();
+    today.setHours(0,0,0,0);
+
+    for(let day = 1; day <= lastDay.getDate(); day++){
+      const dayCell = document.createElement('div');
+      dayCell.textContent = day;
+      dayCell.classList.add('rounded-lg', 'text-center', 'py-2', 'font-semibold', 'select-none', 'transition-colors', 'duration-200');
+
+      const cellDate = new Date(year, month, day);
+      const cellDateStr = cellDate.toISOString().slice(0,10);
+
+      if(cellDate < today || fechasReservadas.includes(cellDateStr)){
+        // Días no disponibles: gris claro / oscuro, sin pointer
+        dayCell.classList.add('bg-gray-200', 'text-gray-400', 'cursor-not-allowed', 'dark:bg-gray-700', 'dark:text-gray-500');
+      } else {
+        // Días disponibles: fondo blanco / gris oscuro, cursor pointer, hover azul suave
+        dayCell.classList.add('bg-white', 'cursor-pointer', 'dark:bg-gray-900', 'dark:text-gray-100');
+        dayCell.addEventListener('click', () => {
+          clearSelection();
+          dayCell.classList.add('bg-blue-600', 'text-white', 'dark:bg-blue-500');
+          selectedDate = cellDate;
+          btnReservar.disabled = false;
+        });
+        dayCell.addEventListener('mouseover', () => {
+          if(!dayCell.classList.contains('bg-blue-600')) {
+            dayCell.classList.add('bg-blue-100', 'dark:bg-blue-700');
+          }
+        });
+        dayCell.addEventListener('mouseout', () => {
+          if(!dayCell.classList.contains('bg-blue-600')) {
+            dayCell.classList.remove('bg-blue-100', 'dark:bg-blue-700');
+          }
+        });
+      }
+      calendarDays.appendChild(dayCell);
+    }
+  }
+
+  function clearSelection(){
+    Array.from(calendarDays.children).forEach(child => {
+      child.classList.remove('bg-blue-600', 'text-white', 'dark:bg-blue-500');
+      child.classList.remove('bg-blue-100', 'dark:bg-blue-700');
+    });
+    btnReservar.disabled = true;
+    selectedDate = null;
+  }
+
+  btnPrev.addEventListener('click', () => {
+    const today = new Date();
+    if(currentDate.getFullYear() > today.getFullYear() || 
+      (currentDate.getFullYear() === today.getFullYear() && currentDate.getMonth() > today.getMonth())) {
+      currentDate.setMonth(currentDate.getMonth() - 1);
+      renderCalendar(currentDate);
+      clearSelection();
+    }
+  });
+
+  btnNext.addEventListener('click', () => {
+    currentDate.setMonth(currentDate.getMonth() + 1);
+    renderCalendar(currentDate);
+    clearSelection();
+  });
+
+  btnReservar.addEventListener('click', () => {
+    if (!selectedDate) return alert('Selecciona una fecha para reservar');
+
+    const fechaISO = selectedDate.toISOString().slice(0, 10);
+    window.location.href = `/salon/{{ salon.id }}/resumen/${fechaISO}/`;
+  });
+
+  renderCalendar(currentDate);
+</script>
+
+{% endblock %}

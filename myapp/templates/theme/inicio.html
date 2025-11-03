@@ -1,0 +1,49 @@
+{% extends 'theme/base.html' %}
+{% load humanize static %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8">
+
+  <!-- Tendencia -->
+  <h2 class="text-2xl font-bold mb-4">Tendencia</h2>
+  <div class="flex flex-wrap gap-6">
+    {% for salon in tendencia %}
+      <a href="{% url 'detalle_salon' salon.id %}" class="block hover:shadow-lg rounded-lg overflow-hidden">
+        {% if salon.imagen %}
+          <img src="{{ salon.imagen.url }}" alt="{{ salon.nombre }}" class="w-full h-[150px] object-cover">
+        {% else %}
+          <img src="{% static 'myapp/default.jpg' %}" alt="Sin imagen" class="w-full h-[150px] object-cover">
+        {% endif %}
+        <div class="p-4 bg-white dark:bg-gray-800">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ salon.nombre }}</h3>
+          <p class="text-gray-600 dark:text-gray-300 font-bold">${{ salon.precio|intcomma }}</p>
+          <p class="text-gray-500 dark:text-gray-400">Categoría: <em>{{ salon.categoria }}</em></p>
+          <p class="text-yellow-500">⭐ {{ salon.calificacion }}</p>
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+
+  <!-- Más cercanos -->
+  <h2 class="text-2xl font-bold mt-10 mb-4">Más cercanos</h2>
+  <div class="flex flex-wrap gap-6">
+    {% for salon in mas_cercanos %}
+      <a href="{% url 'detalle_salon' salon.id %}" 
+         class="block hover:shadow-lg rounded-lg overflow-hidden w-[220px] flex flex-col h-full">
+        {% if salon.imagen %}
+          <img src="{{ salon.imagen.url }}" alt="{{ salon.nombre }}" class="w-full h-[150px] object-cover">
+        {% else %}
+          <img src="{% static 'media/null.jpg' %}" alt="Sin imagen" class="w-full h-[150px] object-cover">
+        {% endif %}
+        <div class="p-4 bg-white dark:bg-gray-800 flex-1 flex flex-col justify-between">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ salon.nombre }}</h3>
+          <p class="text-gray-600 dark:text-gray-300 font-bold">${{ salon.precio|intcomma }}</p>
+          <p class="text-gray-500 dark:text-gray-400">Categoría: <em>{{ salon.categoria }}</em></p>
+          <p class="text-yellow-500">⭐ {{ salon.calificacion }}</p>
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+
+</div>
+{% endblock %}

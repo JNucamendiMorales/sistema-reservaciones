@@ -1,0 +1,16 @@
+{% extends 'theme/base.html' %}
+{% block title %}Salones Disponibles{% endblock %}
+
+{% block content %}
+  <h1>Salones Disponibles</h1>
+  <ul class="lista-salones">
+    {% for salon in salones %}
+      <li>
+        <strong>{{ salon.nombre }}</strong> — Capacidad: {{ salon.capacidad }}<br>
+        {{ salon.descripcion }}
+      </li>
+    {% empty %}
+      <li>No hay salones disponibles por el momento.</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

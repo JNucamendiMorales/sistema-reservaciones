@@ -1,0 +1,142 @@
+{% extends 'theme/base.html' %}
+{% load humanize %}
+
+{% block title %}{{ salon.nombre }} - Detalle{% endblock %}
+
+{% block content %}
+<!-- Tarjeta principal con imagen y datos -->
+<div class="max-w-4xl mx-auto p-6 bg-white dark:bg-gray-800 rounded shadow mt-8 flex flex-col md:flex-row gap-6 relative">
+
+  <!-- Imagen -->
+  <div class="flex-shrink-0 w-full md:w-1/2">
+    {% if salon.imagen %}
+      <img src="{{ salon.imagen.url }}" alt="{{ salon.nombre }}" class="w-full h-auto max-h-80 object-cover rounded">
+    {% else %}
+      <div class="w-full h-80 bg-gray-200 dark:bg-gray-700 flex items-center justify-center rounded">
+        <span class="text-gray-500 dark:text-gray-400">No hay imagen disponible</span>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Datos -->
+  <div class="flex-grow w-full md:w-1/2 flex flex-col justify-between relative">
+    <div class="flex items-center gap-4 mb-4">
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">{{ salon.nombre }}</h1>
+
+      <!-- Toast alerta al lado del título -->
+      <div id="toast-favorito" 
+           class="bg-indigo-600 text-white px-4 py-2 rounded shadow opacity-0 pointer-events-none transition-opacity duration-500 select-none">
+        <span id="toast-mensaje" class="font-semibold"></span>
+      </div>
+    </div>
+
+    <p class="mb-2 text-gray-900 dark:text-gray-100"><strong>Precio:</strong> ${{ salon.precio|intcomma }}</p>
+    <p class="mb-2 text-gray-900 dark:text-gray-100"><strong>Calificación:</strong> ⭐ {{ salon.calificacion }}</p>
+    <p class="mb-2 text-gray-900 dark:text-gray-100"><strong>Categoría:</strong> <em>{{ salon.categoria }}</em></p>
+    <p class="mb-2 text-gray-900 dark:text-gray-100"><strong>Ciudad:</strong> {{ salon.ciudad }}</p>
+    <p class="mb-4 text-gray-900 dark:text-gray-100"><strong>Capacidad:</strong> {{ salon.capacidad }} personas</p>
+
+    <!-- Botón favorito-->
+    <button id="btn-favorito" 
+          class="absolute top-3 right-3 text-3xl cursor-pointer focus:outline-none"
+          title="{% if es_favorito %}Quitar de favoritos{% else %}Agregar a favoritos{% endif %}"
+          aria-label="Botón favorito">
+    {% if es_favorito %}
+      <i class="fa-solid fa-star text-yellow-400 transition-transform duration-300"></i>
+    {% else %}
+      <i class="fa-regular fa-star text-gray-400 hover:text-yellow-400 transition-colors duration-300"></i>
+    {% endif %}
+  </button>
+
+    <form action="{% url 'reservar_salon' salon.id %}" method="post" class="mt-6">
+      {% csrf_token %}
+      <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-full font-semibold transition w-full">
+        Reservar este salón
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Descripción -->
+<div class="max-w-4xl mx-auto mt-12 p-6 bg-white dark:bg-gray-800 rounded shadow">
+  <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Descripción</h2>
+  <p class="text-gray-900 dark:text-gray-100">{{ salon.descripcion }}</p>
+</div>
+
+<!-- Reseñas -->
+<div class="max-w-4xl mx-auto mt-12 p-6 bg-white dark:bg-gray-800 rounded shadow">
+  <h2 class="text-xl font-semibold mb-6 text-gray-900 dark:text-gray-100">Reseñas de usuarios</h2>
+
+  {% if reseñas %}
+    <ul class="space-y-6">
+      {% for review in reseñas %}
+        <li class="border border-gray-200 dark:border-gray-700 rounded p-4">
+          <p class="font-semibold text-gray-900 dark:text-gray-100">{{ review.usuario }}</p>
+          <p class="text-yellow-500">⭐ {{ review.calificacion }}</p>
+          <p class="text-gray-700 dark:text-gray-300 mt-1">{{ review.comentario }}</p>
+          {% if review.fecha %}
+            <p class="text-sm text-gray-400 dark:text-gray-500 mt-2">{{ review.fecha|date:"d M Y" }}</p>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="text-gray-500 dark:text-gray-400 italic">Aún no hay reseñas para este salón.</p>
+  {% endif %}
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const btnFavorito = document.getElementById("btn-favorito");
+  const toast = document.getElementById("toast-favorito");
+  const toastMensaje = document.getElementById("toast-mensaje");
+
+  btnFavorito.addEventListener("click", function() {
+    {% if not user.is_authenticated %}
+      window.location.href = "{% url 'login' %}?next={{ request.path }}";
+      return;
+    {% endif %}
+
+    const url = "{% url 'toggle_favorito' salon.id %}";
+
+    fetch(url, {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": "{{ csrf_token }}",
+        "X-Requested-With": "XMLHttpRequest"
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if(data.success) {
+        if(data.estado === "agregado") {
+          btnFavorito.innerHTML = '<i class="fa-solid fa-star text-yellow-400 transition-transform duration-300 scale-110"></i>';
+          btnFavorito.title = "Quitar de favoritos";
+          mostrarToast("Agregado a favoritos");
+        } else if(data.estado === "eliminado") {
+          btnFavorito.innerHTML = '<i class="fa-regular fa-star text-gray-400 hover:text-yellow-400 transition-colors duration-300"></i>';
+          btnFavorito.title = "Agregar a favoritos";
+          mostrarToast("Eliminado de favoritos");
+        }
+      } else {
+        mostrarToast("Error al actualizar favoritos");
+      }
+    })
+    .catch(() => {
+      mostrarToast("Error de conexión");
+    });
+  });
+
+  function mostrarToast(mensaje) {
+    toastMensaje.textContent = mensaje;
+    toast.classList.remove("opacity-0", "pointer-events-none");
+    toast.classList.add("opacity-100");
+
+    setTimeout(() => {
+      toast.classList.remove("opacity-100");
+      toast.classList.add("opacity-0", "pointer-events-none");
+    }, 3000);
+  }
+});
+</script>
+{% endblock %}

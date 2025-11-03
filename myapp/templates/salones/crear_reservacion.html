@@ -1,0 +1,20 @@
+{% load static %}
+
+<!-- crear_reservacion.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Reservar Salón</title>
+</head>
+<body>
+    <h1>Reservar un Salón</h1>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Reservar</button>
+    </form>
+
+    <a href="{% url 'lista_salones' %}">Volver a la lista de salones</a>
+</body>
+</html>

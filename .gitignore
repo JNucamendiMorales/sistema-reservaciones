@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.pdb
+*.egg-info/
+*.eggs/
+dist/
+build/
+*.so
+*.sqlite3
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+media/
+staticfiles/
+static/
+
+# Virtual environments (Ignorar variables de entorno y entornos virtuales)
+venv/
+venv_nuevo/
+.env
+
+# VS Code
+.vscode/
+
+
+# Tailwind build artifacts (not the configs)
+theme/static/css/dist/
+
+
+# Docker
+*.env
+docker-compose.override.yml
+Dockerfile
+docker-compose.yml
+
+# Miscellaneous
+.DS_Store
+Thumbs.db
