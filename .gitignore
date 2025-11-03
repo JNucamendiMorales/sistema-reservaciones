@@ -24,6 +24,7 @@ static/
 venv/
 venv_nuevo/
 .env
+.env.local
 
 # VS Code
 .vscode/
