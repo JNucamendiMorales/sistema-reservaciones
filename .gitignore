@@ -16,7 +16,7 @@ build/
 *.log
 local_settings.py
 db.sqlite3
-media/
+#media/
 staticfiles/
 static/
 
@@ -36,6 +36,7 @@ theme/static/css/dist/
 
 # Docker
 *.env
+.env.docker
 docker-compose.override.yml
 Dockerfile
 docker-compose.yml

@@ -1,17 +1,36 @@
 {% extends "theme/base.html" %}
+{% block navbar %}
+<!-- Navbar oculto -->
+{% endblock %}
 
 {% block content %}
+<div class="max-w-5xl mx-auto mb-6 p-6">
+    {% include 'theme/step_component.html' with step=1 progress=5   %}
+</div>
+
+
+
 <div class="max-w-4xl mx-auto mt-5 p-8 bg-white dark:bg-gray-800 rounded-xl shadow-lg flex gap-10">
 
-  <!-- Imagen y botón -->
-  <div class="flex flex-col items-center flex-1">
+  
+  
+
+  <!-- Imagen y botón con form -->
+  <form method="post" action="{% url 'reservar' salon.id %}" class="flex flex-col items-center flex-1">
+    {% csrf_token %}
     <h3 class="mb-4 font-semibold text-xl text-gray-900 dark:text-gray-100">Salón: {{ salon.nombre }}</h3>
+
     {% if salon.imagen %}
       <img src="{{ salon.imagen.url }}" alt="Imagen {{ salon.nombre }}" class="w-full max-w-md rounded-lg object-cover shadow-md" />
     {% else %}
       <img src="https://via.placeholder.com/350x220?text=Sin+imagen" alt="Sin imagen disponible" class="w-full max-w-md rounded-lg object-cover shadow-md" />
     {% endif %}
+
+    <!-- Input oculto para enviar la fecha seleccionada -->
+    <input type="hidden" name="fecha" id="fecha-input" >
+
     <button
+      type="submit"
       id="btn-reservar"
       class="mt-6 px-8 py-3 text-lg font-semibold rounded-lg
              bg-blue-600 text-white hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed
@@ -20,13 +39,14 @@
     >
       Reservar
     </button>
-  </div>
+  </form>
 
   <!-- Calendario -->
   <div class="flex-1 max-w-sm">
     <div id="calendar-header" class="flex justify-between items-center mb-4">
       <button
         id="btn-prev"
+        type="button"
         class="text-blue-600 font-bold text-xl hover:bg-blue-100 dark:hover:bg-blue-700 rounded-lg px-3 py-1 transition"
       >
         &#8592;
@@ -34,6 +54,7 @@
       <h3 id="month-year" class="text-xl font-semibold text-gray-900 dark:text-gray-100"></h3>
       <button
         id="btn-next"
+        type="button"
         class="text-blue-600 font-bold text-xl hover:bg-blue-100 dark:hover:bg-blue-700 rounded-lg px-3 py-1 transition"
       >
         &#8594;
@@ -49,28 +70,39 @@
 </div>
 
 <script>
-  const fechasReservadas = JSON.parse('{{ fechas_reservadas|escapejs }}');
+
+const fechasReservadas = {{ fechas_reservadas|safe }};
+  console.log('Fechas reservadas:', fechasReservadas);  // Verifica que llegan correctamente
+
+  
   const calendarDays = document.getElementById('calendar-days');
   const monthYear = document.getElementById('month-year');
   const btnPrev = document.getElementById('btn-prev');
   const btnNext = document.getElementById('btn-next');
   const btnReservar = document.getElementById('btn-reservar');
+  const fechaInput = document.getElementById('fecha-input');
 
   let selectedDate = null;
   let currentDate = new Date();
+
+  // --- Función para formatear fechas en YYYY-MM-DD ---
+  function formatDateLocal(date){
+    const year = date.getFullYear();
+    const month = String(date.getMonth()+1).padStart(2,'0');
+    const day = String(date.getDate()).padStart(2,'0');
+    return `${year}-${month}-${day}`;
+  }
 
   function renderCalendar(date) {
     calendarDays.innerHTML = '';
     const year = date.getFullYear();
     const month = date.getMonth();
-
     const months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
     monthYear.textContent = `${months[month]} ${year}`;
 
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
 
-    // Espacios para alinear
     for(let i = 0; i < firstDay.getDay(); i++){
       const emptyCell = document.createElement('div');
       calendarDays.appendChild(emptyCell);
@@ -85,18 +117,17 @@
       dayCell.classList.add('rounded-lg', 'text-center', 'py-2', 'font-semibold', 'select-none', 'transition-colors', 'duration-200');
 
       const cellDate = new Date(year, month, day);
-      const cellDateStr = cellDate.toISOString().slice(0,10);
+      const cellDateStr = formatDateLocal(cellDate);
 
       if(cellDate < today || fechasReservadas.includes(cellDateStr)){
-        // Días no disponibles: gris claro / oscuro, sin pointer
         dayCell.classList.add('bg-gray-200', 'text-gray-400', 'cursor-not-allowed', 'dark:bg-gray-700', 'dark:text-gray-500');
       } else {
-        // Días disponibles: fondo blanco / gris oscuro, cursor pointer, hover azul suave
         dayCell.classList.add('bg-white', 'cursor-pointer', 'dark:bg-gray-900', 'dark:text-gray-100');
         dayCell.addEventListener('click', () => {
           clearSelection();
           dayCell.classList.add('bg-blue-600', 'text-white', 'dark:bg-blue-500');
           selectedDate = cellDate;
+          fechaInput.value = formatDateLocal(selectedDate);
           btnReservar.disabled = false;
         });
         dayCell.addEventListener('mouseover', () => {
@@ -121,6 +152,7 @@
     });
     btnReservar.disabled = true;
     selectedDate = null;
+    fechaInput.value = '';
   }
 
   btnPrev.addEventListener('click', () => {
@@ -139,14 +171,10 @@
     clearSelection();
   });
 
-  btnReservar.addEventListener('click', () => {
-    if (!selectedDate) return alert('Selecciona una fecha para reservar');
-
-    const fechaISO = selectedDate.toISOString().slice(0, 10);
-    window.location.href = `/salon/{{ salon.id }}/resumen/${fechaISO}/`;
-  });
-
   renderCalendar(currentDate);
 </script>
 
+
 {% endblock %}
+
+{% block footer %}{% endblock %}

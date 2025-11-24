@@ -4,139 +4,273 @@
 {% block title %}{{ salon.nombre }} - Detalle{% endblock %}
 
 {% block content %}
-<!-- Tarjeta principal con imagen y datos -->
-<div class="max-w-4xl mx-auto p-6 bg-white dark:bg-gray-800 rounded shadow mt-8 flex flex-col md:flex-row gap-6 relative">
+<div class="bg-white">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-  <!-- Imagen -->
-  <div class="flex-shrink-0 w-full md:w-1/2">
-    {% if salon.imagen %}
-      <img src="{{ salon.imagen.url }}" alt="{{ salon.nombre }}" class="w-full h-auto max-h-80 object-cover rounded">
-    {% else %}
-      <div class="w-full h-80 bg-gray-200 dark:bg-gray-700 flex items-center justify-center rounded">
-        <span class="text-gray-500 dark:text-gray-400">No hay imagen disponible</span>
+    <!-- =================== GRID PRINCIPAL =================== -->
+    <div class="grid lg:grid-cols-[65%_33%] gap-10 mb-8 grid-flow-col">
+
+      <!-- ======= COLUMNA IZQUIERDA: IMAGEN ======= -->
+      <div class="w-full">
+        {% if salon.imagen %}
+        <img src="{{ salon.imagen.url }}" class="w-full aspect-[16/10] object-cover rounded-xl mt-6">
+        {% else %}
+        <div class="w-full h-96 bg-gray-200 flex items-center justify-center rounded-lg mt-6">
+          <span class="text-gray-500">No hay imagen disponible</span>
+        </div>
+        {% endif %}
       </div>
-    {% endif %}
-  </div>
 
-  <!-- Datos -->
-  <div class="flex-grow w-full md:w-1/2 flex flex-col justify-between relative">
-    <div class="flex items-center gap-4 mb-4">
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">{{ salon.nombre }}</h1>
+      <!-- ======= COLUMNA DERECHA: INFORMACIÓN (independiente) ======= -->
+      <div class="flex flex-col">
+        <h1 class="text-4xl font-bold text-gray-900 mt-6">{{ salon.nombre }}</h1>
 
-      <!-- Toast alerta al lado del título -->
-      <div id="toast-favorito" 
-           class="bg-indigo-600 text-white px-4 py-2 rounded shadow opacity-0 pointer-events-none transition-opacity duration-500 select-none">
-        <span id="toast-mensaje" class="font-semibold"></span>
+        <div class="flex items-center mt-2">
+          <p class="text-xl font-semibold text-gray-900">$ {{ salon.precio|intcomma }}</p>
+          <div class="h-6 w-px bg-gray-300 mx-3"></div>
+
+          <div class="flex space-x-1">
+            {% for i in "12345" %}
+            {% if i|add:"0" <= salon.calificacion %} <span class="text-yellow-400">★</span>
+              {% else %}
+              <span class="text-gray-300">★</span>
+              {% endif %}
+              {% endfor %}
+          </div>
+
+
+
+          <span class="text-gray-500 ml-2">({{ reseñas|length }})</span>
+        </div>
+
+        <p class="mt-4 text-gray-700">{{ salon.descripcion }}</p>
+
+        <p class="mt-6 text-sm text-gray-500 flex items-center">
+          <span class="text-green-500 mr-1">✔</span> Disponible hoy
+        </p>
+
+        <div class="mt-4 flex gap-4">
+  <!-- Botón Reservar -->
+  <a href="{% url 'reservar' salon.id %}"
+     class="flex-1 text-center rounded-md bg-indigo-600 text-white px-6 py-3 font-semibold hover:bg-indigo-700 transition">
+    Reservar este salón
+  </a>
+
+  <!-- Botón Favorito -->
+  <button id="favBtn" data-salon="{{ salon.id }}"
+          class="flex items-center justify-center rounded-md border border-gray-300 px-4 py-3 hover:bg-gray-100 transition">
+    <svg id="favIcon" class="w-6 h-6 {% if favorito %}text-red-500{% else %}text-gray-700{% endif %}" 
+         aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="{% if favorito %}red{% else %}none{% endif %}" 
+         viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round"
+            d="M12.01 6.001C6.5 1 1 8 5.782 13.001L12.011 20l6.23-7C23 8 17.5 1 12.01 6.002Z"/>
+    </svg>
+  </button>
+</div>
+
+
+        <div class="flow-root my-6 border-t border-gray-200"></div>
+
+<h2 class="text-sm font-medium text-gray-900">Características</h2>
+
+<ul class="mt-6 space-y-2 text-sm text-gray-700">
+    <li class="flex gap-x-2">
+        <span class="text-gray-700">Categoría:</span>
+        <span class="italic text-gray-900">{{ salon.get_categoria_display }}</span>
+    </li>
+
+    <li class="flex gap-x-2">
+        <span class="text-gray-700">Ciudad:</span>
+        <span class="italic text-gray-900">{{ salon.ciudad }}</span>
+    </li>
+
+    <li class="flex gap-x-2">
+        <span class="text-gray-700">Capacidad:</span>
+        <span class="italic text-gray-900">{{ salon.capacidad }} personas</span>
+    </li>
+</ul>
+
+<div class="flow-root my-6 border-t border-gray-300"></div>
+
       </div>
     </div>
 
-    <p class="mb-2 text-gray-900 dark:text-gray-100"><strong>Precio:</strong> ${{ salon.precio|intcomma }}</p>
-    <p class="mb-2 text-gray-900 dark:text-gray-100"><strong>Calificación:</strong> ⭐ {{ salon.calificacion }}</p>
-    <p class="mb-2 text-gray-900 dark:text-gray-100"><strong>Categoría:</strong> <em>{{ salon.categoria }}</em></p>
-    <p class="mb-2 text-gray-900 dark:text-gray-100"><strong>Ciudad:</strong> {{ salon.ciudad }}</p>
-    <p class="mb-4 text-gray-900 dark:text-gray-100"><strong>Capacidad:</strong> {{ salon.capacidad }} personas</p>
+    <!-- =================== SECCIÓN: SERVICIOS EXTRAS =================== -->
+    <div class="mt-10">
+      <h2 class="text-2xl font-bold text-gray-900 mb-6">Servicios extras</h2>
 
-    <!-- Botón favorito-->
-    <button id="btn-favorito" 
-          class="absolute top-3 right-3 text-3xl cursor-pointer focus:outline-none"
-          title="{% if es_favorito %}Quitar de favoritos{% else %}Agregar a favoritos{% endif %}"
-          aria-label="Botón favorito">
-    {% if es_favorito %}
-      <i class="fa-solid fa-star text-yellow-400 transition-transform duration-300"></i>
-    {% else %}
-      <i class="fa-regular fa-star text-gray-400 hover:text-yellow-400 transition-colors duration-300"></i>
-    {% endif %}
-  </button>
+      <div class="grid lg:grid-cols-[65%_33%] gap-10 grid-flow-col">
 
-    <form action="{% url 'reservar_salon' salon.id %}" method="post" class="mt-6">
-      {% csrf_token %}
-      <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-full font-semibold transition w-full">
-        Reservar este salón
-      </button>
-    </form>
+        <!-- ===== GALERÍA IZQUIERDA ===== -->
+        <div class="grid grid-cols-3 grid-rows-2 gap-4 h-[500px]"> <!-- Altura fija para el contenedor -->
+
+          <!-- 1. Grande (Izquierda) -->
+          <div class="row-span-2 col-span-1 rounded-lg overflow-hidden">
+            <img src="/media/servicios/banquete.png" class="w-full h-full object-cover">
+          </div>
+
+          <!-- 2. Pequeño (Centro arriba) -->
+          <div class="col-span-1 row-span-1 rounded-lg overflow-hidden">
+            <img src="/media/servicios/decoracion.png" class="w-full h-[250px] object-cover">
+          </div>
+
+
+          <!-- 4. Grande (Derecha) -->
+          <div class="row-span-2 col-span-1 rounded-lg overflow-hidden">
+            <img src="/media/servicios/fotografia.png" class="w-full h-[500px] object-cover">
+          </div>
+
+          <!-- 3. Pequeño (Centro abajo) -->
+          <div class="col-span-1 row-span-1 rounded-lg overflow-hidden">
+            <img src="/media/servicios/musica.png" class="w-full h-[250px] object-cover">
+          </div>
+
+        </div>
+
+
+        <!-- ===== PANEL DERECHA (MISMO ESTILO DEL SALÓN) ===== -->
+        <div class="flex flex-col">
+          <h3 class="text-2xl font-bold text-gray-900 mt-2">
+            Paquetes y servicios adicionales
+          </h3>
+
+          <p class="mt-4 text-gray-700">
+            Complementa tu reservación con servicios profesionales que harán tu evento más completo.
+          </p>
+
+          <!-- Lista dinámica -->
+          <ul class="mt-6 space-y-2 text-sm text-gray-700">
+            {% for servicio in servicios_extras %}
+            <li class="flex gap-x-2">
+              <span class="text-indigo-600 font-semibold">•</span>
+              {{ servicio.nombre }}{% if servicio.precio %} - ${{ servicio.precio|intcomma }}{% endif %}
+            </li>
+            {% empty %}
+            <li>No hay servicios adicionales disponibles</li>
+            {% endfor %}
+          </ul>
+
+          <div class="flow-root my-6 border-t border-gray-300"></div>
+
+          <p class="text-xs text-gray-400 mt-3">
+            Los precios pueden variar según disponibilidad y fecha seleccionada.
+          </p>
+
+        </div>
+
+
+
+
+
+
+
+
+      </div>
+
+      <!-- =================== NUEVO CONTENEDOR ABAJO DE LA GALERÍA =================== -->
+      <div class="mt-2">
+        <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+          <div class="mx-auto max-w-lg text-center">
+            <h2 class="text-3xl font-bold text-gray-900 sm:text-4xl">Lo mejor de nuestro salón</h2>
+            <p class="mt-4 text-lg text-gray-700">
+              Descubre las ventajas y características que hacen que tu evento sea inolvidable.
+            </p>
+          </div>
+
+          <div class="mt-8 grid grid-cols-1 gap-8 md:grid-cols-3">
+            <!-- Feature 1: Verificado -->
+            <div class="rounded-lg border border-gray-200 p-6 hover:shadow-lg transition">
+              <div class="inline-flex rounded-lg bg-indigo-50 p-3 text-indigo-600">
+                <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                  viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="m8.032 12 1.984 1.984 4.96-4.96m4.55 5.272.893-.893a1.984 1.984 0 0 0 0-2.806l-.893-.893a1.984 1.984 0 0 1-.581-1.403V7.04a1.984 1.984 0 0 0-1.984-1.984h-1.262a1.983 1.983 0 0 1-1.403-.581l-.893-.893a1.984 1.984 0 0 0-2.806 0l-.893.893a1.984 1.984 0 0 1-1.403.581H7.04A1.984 1.984 0 0 0 5.055 7.04v1.262c0 .527-.209 1.031-.581 1.403l-.893.893a1.984 1.984 0 0 0 0 2.806l.893.893c.372.372.581.876.581 1.403v1.262a1.984 1.984 0 0 0 1.984 1.984h1.262c.527 0 1.031.209 1.403.581l.893.893a1.984 1.984 0 0 0 2.806 0l.893-.893a1.985 1.985 0 0 1 1.403-.581h1.262a1.984 1.984 0 0 0 1.984-1.984V15.7c0-.527.209-1.031.581-1.403Z" />
+                </svg>
+              </div>
+              <h3 class="mt-4 text-lg font-semibold text-gray-900">Verificado</h3>
+              <p class="mt-2 text-gray-700">
+                Nuestro salón cumple con los estándares de calidad y seguridad para tu evento.
+              </p>
+            </div>
+
+            <!-- Feature 2: Tu estilo -->
+            <div class="rounded-lg border border-gray-200 p-6 hover:shadow-lg transition">
+              <div class="inline-flex rounded-lg bg-pink-50 p-3 text-pink-600">
+                <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                  viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M12 7h.01m3.486 1.513h.01m-6.978 0h.01M6.99 12H7m9 4h2.706a1.957 1.957 0 0 0 1.883-1.325A9 9 0 1 0 3.043 12.89 9.1 9.1 0 0 0 8.2 20.1a8.62 8.62 0 0 0 3.769.9 2.013 2.013 0 0 0 2.03-2v-.857A2.036 2.036 0 0 1 16 16Z" />
+                </svg>
+              </div>
+              <h3 class="mt-4 text-lg font-semibold text-gray-900">Tu estilo</h3>
+              <p class="mt-2 text-gray-700">
+                Personaliza la decoración de tu evento según tu estilo y preferencias.
+              </p>
+            </div>
+
+            <!-- Feature 3: Cancelación 24h -->
+            <div class="rounded-lg border border-gray-200 p-6 hover:shadow-lg transition">
+              <div class="inline-flex rounded-lg bg-yellow-50 p-3 text-yellow-600">
+                <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                  viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                </svg>
+              </div>
+              <h3 class="mt-4 text-lg font-semibold text-gray-900">Cancelación 24h</h3>
+              <p class="mt-2 text-gray-700">
+                Cancela hasta 24 horas antes y recupera tu dinero de manera segura.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+
+
+    </div>
+
+
   </div>
-</div>
+  <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const favBtn = document.getElementById("favBtn");
+    if (!favBtn) return;
 
-<!-- Descripción -->
-<div class="max-w-4xl mx-auto mt-12 p-6 bg-white dark:bg-gray-800 rounded shadow">
-  <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Descripción</h2>
-  <p class="text-gray-900 dark:text-gray-100">{{ salon.descripcion }}</p>
-</div>
+    const favIcon = document.getElementById("favIcon");
+    const salonId = favBtn.dataset.salon;
 
-<!-- Reseñas -->
-<div class="max-w-4xl mx-auto mt-12 p-6 bg-white dark:bg-gray-800 rounded shadow">
-  <h2 class="text-xl font-semibold mb-6 text-gray-900 dark:text-gray-100">Reseñas de usuarios</h2>
-
-  {% if reseñas %}
-    <ul class="space-y-6">
-      {% for review in reseñas %}
-        <li class="border border-gray-200 dark:border-gray-700 rounded p-4">
-          <p class="font-semibold text-gray-900 dark:text-gray-100">{{ review.usuario }}</p>
-          <p class="text-yellow-500">⭐ {{ review.calificacion }}</p>
-          <p class="text-gray-700 dark:text-gray-300 mt-1">{{ review.comentario }}</p>
-          {% if review.fecha %}
-            <p class="text-sm text-gray-400 dark:text-gray-500 mt-2">{{ review.fecha|date:"d M Y" }}</p>
-          {% endif %}
-        </li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <p class="text-gray-500 dark:text-gray-400 italic">Aún no hay reseñas para este salón.</p>
-  {% endif %}
-</div>
-
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-  const btnFavorito = document.getElementById("btn-favorito");
-  const toast = document.getElementById("toast-favorito");
-  const toastMensaje = document.getElementById("toast-mensaje");
-
-  btnFavorito.addEventListener("click", function() {
-    {% if not user.is_authenticated %}
-      window.location.href = "{% url 'login' %}?next={{ request.path }}";
-      return;
-    {% endif %}
-
-    const url = "{% url 'toggle_favorito' salon.id %}";
-
-    fetch(url, {
-      method: "POST",
-      headers: {
-        "X-CSRFToken": "{{ csrf_token }}",
-        "X-Requested-With": "XMLHttpRequest"
-      }
-    })
-    .then(response => response.json())
-    .then(data => {
-      if(data.success) {
-        if(data.estado === "agregado") {
-          btnFavorito.innerHTML = '<i class="fa-solid fa-star text-yellow-400 transition-transform duration-300 scale-110"></i>';
-          btnFavorito.title = "Quitar de favoritos";
-          mostrarToast("Agregado a favoritos");
-        } else if(data.estado === "eliminado") {
-          btnFavorito.innerHTML = '<i class="fa-regular fa-star text-gray-400 hover:text-yellow-400 transition-colors duration-300"></i>';
-          btnFavorito.title = "Agregar a favoritos";
-          mostrarToast("Eliminado de favoritos");
+    favBtn.addEventListener("click", () => {
+      fetch(`/favorito/toggle/${salonId}/`, {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": "{{ csrf_token }}",
+        },
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.estado === "agregado") {
+          favIcon.setAttribute("fill", "red");
+          favIcon.classList.remove("text-gray-700");
+          favIcon.classList.add("text-red-500");
+          // Animación de latido
+          favIcon.classList.add("animate-pulse");
+          setTimeout(() => favIcon.classList.remove("animate-pulse"), 300);
+        } else {
+          favIcon.setAttribute("fill", "none");
+          favIcon.classList.remove("text-red-500");
+          favIcon.classList.add("text-gray-700");
         }
-      } else {
-        mostrarToast("Error al actualizar favoritos");
-      }
-    })
-    .catch(() => {
-      mostrarToast("Error de conexión");
+      })
+      .catch(err => console.error(err));
     });
   });
-
-  function mostrarToast(mensaje) {
-    toastMensaje.textContent = mensaje;
-    toast.classList.remove("opacity-0", "pointer-events-none");
-    toast.classList.add("opacity-100");
-
-    setTimeout(() => {
-      toast.classList.remove("opacity-100");
-      toast.classList.add("opacity-0", "pointer-events-none");
-    }, 3000);
-  }
-});
 </script>
+
+</div>
+
+<style>
+  /* * { outline: 1px solid red; }  Para debug */
+</style>
 {% endblock %}

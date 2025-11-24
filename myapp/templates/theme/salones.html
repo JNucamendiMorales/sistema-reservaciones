@@ -1,0 +1,168 @@
+{% extends "theme/base.html" %}
+{% load static humanize %}
+
+{% block content %}
+
+<div class="bg-gray-50 min-h-screen py-10 pb-32">  <!-- ← agregado pb-32 -->
+  <div class="max-w-1xl mx-auto px-6 sm:px-8 lg:px-12 flex gap-8">
+
+    <!-- ================= FILTROS (Izquierda) ================= -->
+    <aside class="w-[400px] hidden md:block ">
+
+      <!-- CONTENEDOR STICKY -->
+      <div class="sticky top-24 bg-white pt-1 pb-2 px-6 rounded-lg shadow space-y-1 
+                  max-h-[80vh] overflow-y-auto">
+
+        <!-- Categoría -->
+        <div class="flow-root pb-4 border-b border-gray-200">
+          <h3 class="float-left px-2 py-3 font-medium text-gray-900">Categoría</h3>
+          <div class="float-right border-t border-gray-200 mt-2"></div>
+
+          <div class="mt-2 space-y-2 clear-left px-2">
+            {% for key, value in categorias %}
+            <label class="flex items-center">
+              <input type="checkbox" name="categoria" value="{{ key }}"
+       {% if key in categorias_seleccionadas or key == default_categoria %}checked{% endif %}>
+
+              <span class="ml-2 text-gray-700 text-sm">{{ value }}</span>
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Ciudad -->
+        <div class="flow-root pb-4 border-b border-gray-200">
+          <h3 class="float-left px-2 py-3 font-medium text-gray-900">Ciudad</h3>
+          <div class="float-right border-t border-gray-200 mt-2"></div>
+
+          <div class="mt-2 space-y-2 clear-left px-2">
+            {% for ciudad in ciudades %}
+            <label class="flex items-center">
+              <input type="checkbox" name="ciudad" value="{{ ciudad }}"
+                     {% if ciudad in ciudades_seleccionadas %}checked{% endif %}>
+              <span class="ml-2 text-gray-700 text-sm">{{ ciudad }}</span>
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Capacidad -->
+        <div class="flow-root pb-4 border-b border-gray-200">
+          <h3 class="float-left px-2 py-3 font-medium text-gray-900">Capacidad</h3>
+          <div class="float-right border-t border-gray-200 mt-2"></div>
+
+          <div class="mt-2 flex gap-2 clear-left px-2">
+            <input type="number" name="capacidad_min"
+                   placeholder="Min {{ capacidad_min_db }}"
+                   value="{{ request.GET.capacidad_min }}"
+                   min="0" max="{{ capacidad_max_db }}"
+                   class="w-1/2 border rounded p-2 text-sm">
+            <input type="number" name="capacidad_max"
+                   placeholder="Max {{ capacidad_max_db }}"
+                   value="{{ request.GET.capacidad_max }}"
+                   min="0" max="{{ capacidad_max_db }}"
+                   class="w-1/2 border rounded p-2 text-sm">
+          </div>
+        </div>
+
+        <!-- Precio -->
+        <div class="flow-root pb-4">
+          <h3 class="float-left px-2 py-3 font-medium text-gray-900">Precio</h3>
+          <div class="float-right border-t border-gray-200 mt-2"></div>
+
+          <div class="mt-2 flex gap-2 clear-left px-2">
+            <input type="number" name="precio_min"
+                   placeholder="Min {{ precio_min_db }}"
+                   value="{{ request.GET.precio_min }}"
+                   min="0" max="{{ precio_max_db }}"
+                   class="w-1/2 border rounded p-2 text-sm">
+            <input type="number" name="precio_max"
+                   placeholder="Max {{ precio_max_db }}"
+                   value="{{ request.GET.precio_max }}"
+                   min="0" max="{{ precio_max_db }}"
+                   class="w-1/2 border rounded p-2 text-sm">
+          </div>
+        </div>
+
+      </div> <!-- FIN sticky -->
+
+    </aside>
+
+
+    <!-- ================= LISTADO DE SALONES (Derecha) ================= -->
+    <main class="flex-1">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for salon in salones %}
+          {% include "theme/salon_card.html" with salon=salon %}
+        {% empty %}
+          <p class="text-gray-600">No hay salones disponibles.</p>
+        {% endfor %}
+      </div>
+    </main>
+
+  </div>
+</div>
+
+
+<!-- ================= SCRIPT PARA FILTROS AUTOMÁTICOS ================= -->
+<!-- ================= SCRIPT PARA FILTROS AUTOMÁTICOS ================= -->
+<script>
+  function applyFilters() {
+    const params = new URLSearchParams();
+
+    // Categorías seleccionadas
+    document.querySelectorAll('input[name="categoria"]:checked').forEach(el =>
+      params.append('categoria', el.value)
+    );
+
+    // Ciudades seleccionadas
+    document.querySelectorAll('input[name="ciudad"]:checked').forEach(el =>
+      params.append('ciudad', el.value)
+    );
+
+    // Capacidad
+    const capacidadMin = document.querySelector('input[name="capacidad_min"]').value;
+    const capacidadMax = document.querySelector('input[name="capacidad_max"]').value;
+    if (capacidadMin) params.set('capacidad_min', capacidadMin);
+    if (capacidadMax) params.set('capacidad_max', capacidadMax);
+
+    // Precio
+    const precioMin = document.querySelector('input[name="precio_min"]').value;
+    const precioMax = document.querySelector('input[name="precio_max"]').value;
+    if (precioMin) params.set('precio_min', precioMin);
+    if (precioMax) params.set('precio_max', precioMax);
+
+    // 🔥 MANTENER SIEMPRE EL default_categoria
+    const defaultCat = "{{ default_categoria }}";
+    if (defaultCat && !params.getAll('categoria').includes(defaultCat)) {
+        params.append('categoria', defaultCat);
+    }
+
+    // 🔥 AHORA SÍ cambiamos URL (después de append)
+    window.location.search = params.toString();
+  }
+
+  // Inputs numéricos
+  let timer;
+  document.querySelectorAll('input[type="number"]').forEach(input => {
+    input.addEventListener('input', () => {
+      const max = parseInt(input.max);
+      const min = parseInt(input.min);
+      let value = parseInt(input.value);
+
+      if (!isNaN(max) && value > max) input.value = max;
+      if (!isNaN(min) && value < min) input.value = min;
+
+      clearTimeout(timer);
+      timer = setTimeout(applyFilters, 400);
+    });
+  });
+
+  // Checkboxes
+  document.querySelectorAll('input[name="categoria"], input[name="ciudad"]').forEach(input => {
+    input.addEventListener('change', applyFilters);
+  });
+</script>
+
+
+{% endblock %}

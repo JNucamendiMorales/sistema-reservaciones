@@ -1,67 +1,82 @@
 {% extends "theme/base.html" %}
+{% block navbar %}
+<!-- Navbar oculto -->
+{% endblock %}
+{% load humanize %}
+
+{% block title %}Detalles de la Reservación{% endblock %}
 
 {% block content %}
-<div style="
-  max-width: 850px;
-  margin: 10px auto 40px auto;
-  background: #fff;
-  padding: 40px;
-  border-radius: 15px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-  font-family: Arial, sans-serif;
-  color: #333;
-">
-  {% if salon.imagen %}
-    <div style="display: flex; justify-content: center; margin-bottom: 30px;">
-    <img src="{{ salon.imagen.url }}" alt="Imagen de {{ salon.nombre }}" style="max-width: 100%; height: 200px; border-radius: 25px; object-fit: contain;">
+<div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-12">
+
+  <!-- ===== TÍTULO ===== -->
+  <h1 class="text-3xl font-bold text-gray-900 mb-2">Detalles de la Reservación</h1>
+
+  <!-- ===== SEPARADOR ===== -->
+  <div class="h-1 bg-blue-200 rounded-full mb-8 w-full"></div>
+
+  <!-- ===== CONTENEDOR PRINCIPAL ===== -->
+  <div class="flex flex-col md:flex-row gap-6">
+
+    <!-- IMAGEN DEL SALÓN -->
+    <div class="md:w-1/2">
+      <img src="{{ reserva.salon.imagen.url }}" alt="{{ reserva.salon.nombre }}" class="rounded-xl shadow-lg w-full h-[580px] object-cover">
+    </div>
+
+    <!-- TARJETA DE INFORMACIÓN -->
+    <div class="md:w-1/2 bg-white p-6 rounded-xl shadow-lg flex flex-col justify-between">
+      
+      <div>
+        <h2 class="text-2xl font-semibold text-gray-900 mb-2">{{ reserva.salon.nombre }}</h2>
+        <p class="text-gray-600 mb-4">Fecha de reserva: <span class="font-medium">{{ reserva.fecha_reserva }}</span></p>
+        
+        <!-- Precio -->
+        <div class="flex justify-between items-center mt-4 border-t border-gray-200 pt-4">
+          <span class="text-gray-700 font-medium">Precio por día</span>
+          <span class="text-xl font-bold text-gray-900">${{ reserva.salon.precio|intcomma }} MXN</span>
+        </div>
+
+        <!-- Servicios extra -->
+        {% if reserva.servicios_extra.all %}
+        <div class="mt-4">
+          <h3 class="text-gray-800 font-medium mb-2">Servicios extra</h3>
+          <ul class="list-disc list-inside text-gray-600">
+            {% for e in reserva.servicios_extra.all %}
+              <li>{{ e.nombre }} — ${{ e.precio|intcomma }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+
+        {% if descuento_aplicado > 0 %}
+        <div class="mt-4 flex justify-between text-green-600 font-medium">
+          <span>Descuento ({{ codigo_ingresado|upper }})</span>
+          <span>- ${{ descuento_aplicado|intcomma }}</span>
+        </div>
+        {% endif %}
+
+        <div class="mt-4 flex justify-between text-lg font-bold border-t border-gray-200 pt-2">
+          <span>Total a pagar</span>
+          <span>${{ total_final|intcomma }} MXN</span>
+        </div>
+      </div>
+
+      <!-- BOTONES DE ACCIÓN -->
+      <div class="mt-6 flex flex-col md:flex-row gap-3">
+        <a href="{% url 'inicio' %}" class="w-full md:w-auto text-center px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 font-medium transition">
+          Volver al inicio
+        </a>
+        <a href="{% url 'lista_salones' %}" class="w-full md:w-auto text-center px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 font-medium transition">
+          Seguir explorando salones
+        </a>
+        <a href="{% url 'descargar_pdf' %}" class="w-full md:w-auto text-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition">
+          Descargar comprobante PDF
+        </a>
+      </div>
+
+    </div>
   </div>
-  {% endif %}
-
-  <h1 style="text-align: center; margin-bottom: 25px; font-weight: 700;">Resumen de Reserva</h1>
-
-  {% if error %}
-    <div style="color: #d9534f; font-weight: 600; margin-bottom: 20px; text-align: center;">
-      {{ error }}
-    </div>
-  {% endif %}
-
-  <div style="display: flex; flex-wrap: wrap; gap: 30px; justify-content: center;">
-
-    <div style="flex: 1 1 300px; min-width: 280px;">
-      <h3 style="margin-bottom: 10px; border-bottom: 2px solid #007bff; padding-bottom: 6px;">Detalles del Salón</h3>
-      <p><strong>Nombre:</strong> {{ salon.nombre }}</p>
-      <p><strong>Categoría:</strong> {{ salon.get_categoria_display }}</p>
-      <p><strong>Capacidad:</strong> {{ salon.capacidad }} personas</p>
-      <p><strong>Ciudad:</strong> {{ salon.ciudad }}</p>
-      <p><strong>Calificación:</strong> {{ salon.calificacion }} / 5 ⭐</p>
-    </div>
-
-    <div style="flex: 1 1 300px; min-width: 280px;">
-      <h3 style="margin-bottom: 10px; border-bottom: 2px solid #007bff; padding-bottom: 6px;">Detalles de la Reserva</h3>
-      <p><strong>Fecha seleccionada:</strong> {{ fecha_reserva }}</p>
-      <p><strong>Estado:</strong> Pendiente de confirmación</p>
-      <p><strong>Precio por día:</strong> ${{ salon.precio }}</p>
-      <p><em>(El precio puede incluir impuestos y cargos adicionales según condiciones)</em></p>
-    </div>
-
-  </div>
-
-  <form method="POST" action="{% url 'crear_reserva' salon.id %}" style="margin-top: 40px; text-align: center;">
-    {% csrf_token %}
-    <input type="hidden" name="fecha_reserva" value="{{ fecha_reserva|date:'Y-m-d' }}">
-    <button type="submit" style="
-      padding: 15px 60px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      font-size: 1.3rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    " onmouseover="this.style.backgroundColor='#0056b3';" onmouseout="this.style.backgroundColor='#007bff';">
-      Confirmar pago y reservar
-    </button>
-  </form>
 </div>
 {% endblock %}
+{% block footer %}{% endblock %}
+

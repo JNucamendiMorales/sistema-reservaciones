@@ -1,0 +1,87 @@
+{% extends "theme/base.html" %}
+{% load humanize %}
+
+{% block title %}Mi Reservación{% endblock %}
+
+{% block content %}
+
+<!-- Main Card -->
+<div class="max-w-4xl mx-auto mt-6 bg-white border border-gray-200 rounded-2xl shadow-lg p-6">
+
+  <!-- Header -->
+  <h1 class="text-2xl font-bold text-gray-900 mb-4">Detalle de la Reservación</h1>
+
+  <!-- Contenedor principal -->
+  <div class="flex flex-col md:flex-row gap-6">
+
+    <!-- Imagen del salón -->
+    <div class="md:w-1/3 w-full rounded-lg overflow-hidden border border-gray-300 bg-gray-100 h-48">
+      {% if reservacion.salon.imagen %}
+        <img src="{{ reservacion.salon.imagen.url }}" class="object-cover w-full h-full rounded-lg">
+      {% else %}
+        <div class="flex items-center justify-center text-gray-400 text-sm h-full">
+          Sin imagen
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Información de la reservación -->
+    <div class="md:w-2/3 w-full flex flex-col gap-3">
+
+      <!-- Nombre del salón -->
+      <div>
+        <span class="font-semibold text-gray-800 text-lg">Salón:</span>
+        <span class="text-gray-700">{{ reservacion.salon.nombre }}</span>
+      </div>
+
+      <!-- Categoría -->
+      <div>
+        <span class="font-semibold text-gray-800 text-lg">Categoría:</span>
+        <span class="text-gray-700">{{ reservacion.salon.categoria|title }}</span>
+      </div>
+
+      <!-- Fecha -->
+      <div>
+        <span class="font-semibold text-gray-800 text-lg">Fecha de la reserva:</span>
+        <span class="text-gray-700">{{ reservacion.fecha_reserva }}</span>
+      </div>
+
+      <!-- Precio -->
+      <div>
+        <span class="font-semibold text-gray-800 text-lg">Precio:</span>
+        <span class="text-gray-900 font-semibold">${{ reservacion.precio_total|intcomma }} MXN</span>
+      </div>
+
+      <!-- Estado -->
+      <div>
+        <span class="font-semibold text-gray-800 text-lg">Estado:</span>
+        <span class="px-2 py-1 text-xs rounded-full 
+          {% if reservacion.estado == 'pendiente' %} bg-yellow-100 text-yellow-800 
+          {% elif reservacion.estado == 'confirmada' %} bg-green-100 text-green-800 
+          {% elif reservacion.estado == 'cancelada' %} bg-red-100 text-red-800 
+          {% endif %}">
+          {{ reservacion.estado|title }}
+        </span>
+      </div>
+
+      <!-- Detalles adicionales -->
+      {% if reservacion.detalles %}
+      <div>
+        <span class="font-semibold text-gray-800 text-lg">Detalles:</span>
+        <p class="text-gray-700">{{ reservacion.detalles }}</p>
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+
+  <!-- Botón regresar -->
+  <div class="mt-6 text-right">
+    <a href="{% url 'mis_reservaciones' %}" class="bg-gray-600 hover:bg-gray-700 text-white font-semibold px-4 py-2 rounded-lg shadow transition">
+      Regresar
+    </a>
+  </div>
+
+</div>
+
+{% endblock %}

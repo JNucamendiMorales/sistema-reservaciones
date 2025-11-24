@@ -5,72 +5,169 @@
 
 {% block content %}
 
-<!-- Mensajes de éxito o error -->
-{% if messages %}
-  <div class="max-w-4xl mx-auto mt-4 px-4">
-    {% for message in messages %}
-      <div class="p-4 mb-4 rounded shadow-md
-        {% if message.tags == 'success' %}
-          bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
-        {% elif message.tags == 'error' %}
-          bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200
-        {% endif %}
-      ">
+<div class="bg-gray-50 min-h-screen py-10 pb-32">
+  <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+
+    <!-- ================= TÍTULO + ENCABEZADOS ================= -->
+    <div class="mb-2 flex items-center justify-between">
+
+      <!-- TÍTULO -->
+      <h1 class="text-3xl font-bold text-gray-900">Mis Reservaciones</h1>
+
+      <!-- ENCABEZADOS (sin "Salón") -->
+      <div class="grid grid-cols-[5rem_18rem_6rem_11rem] gap-6 font-semibold text-gray-600 text-sm">
+
+        <!-- Fecha con dropdown -->
+        <details class="group relative cursor-pointer">
+          <summary class="flex items-center gap-1 select-none [&::-webkit-details-marker]:hidden">
+            Fecha
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" class="w-4 h-4 transition-transform group-open:-rotate-180">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+            </svg>
+          </summary>
+
+          <!-- Dropdown -->
+          <div
+            class="absolute top-8 right-0 w-40 rounded border border-gray-300 bg-white shadow-lg z-10 p-3 flex flex-col gap-3">
+
+            <label class="inline-flex items-center gap-3 p-2 rounded hover:bg-blue-50 cursor-pointer transition">
+              <input type="radio" name="fecha_filtro" value="proximos" class="form-radio text-blue-600">
+              <span class="text-base text-gray-800 font-medium">Próximos</span>
+            </label>
+
+            <label class="inline-flex items-center gap-3 p-2 rounded hover:bg-blue-50 cursor-pointer transition">
+              <input type="radio" name="fecha_filtro" value="pasados" class="form-radio text-blue-600">
+              <span class="text-base text-gray-800 font-medium">Pasados</span>
+            </label>
+
+            <button type="button" id="resetFechaFiltro"
+              class="text-sm text-blue-600 underline mt-1 self-start hover:text-blue-800 transition">
+              Reset
+            </button>
+          </div>
+        </details>
+
+        <span class="flex items-center justify-center">Precio</span>
+        <span class="flex items-center justify-center">Estado</span>
+        <span class="flex items-center justify-center">Info</span>
+
+      </div>
+    </div>
+
+    <!-- Separador -->
+    <div class="flow-root border-t border-gray-200 mb-4"></div>
+
+
+    <!-- ================= FLASH MESSAGES ================= -->
+    {% if messages %}
+    <div class="mb-6 space-y-4">
+      {% for message in messages %}
+      <div class="p-4 rounded shadow-sm
+            {% if message.tags == 'success' %} bg-green-100 text-green-800
+            {% elif message.tags == 'error' %} bg-red-100 text-red-800
+            {% endif %}">
         {{ message }}
       </div>
-    {% endfor %}
-  </div>
-{% endif %}
+      {% endfor %}
+    </div>
+    {% endif %}
 
-<div class="max-w-4xl mx-auto mt-10 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg transition-colors">
-  <h1 class="text-3xl font-bold mb-8 text-center text-gray-900 dark:text-white">Mis Reservaciones</h1>
 
-  {% if reservaciones %}
-    <ul class="space-y-6">
+    <!-- ================= LISTADO DE RESERVACIONES ================= -->
+    {% if reservaciones %}
+    <div id="reservaciones-lista" class="divide-y divide-gray-200">
+
       {% for reserva in reservaciones %}
-      <li class="flex items-center gap-6 border border-gray-200 dark:border-gray-700 rounded p-4 hover:shadow-md transition justify-between bg-white dark:bg-gray-900">
-        <div class="flex items-center gap-6">
-          <!-- Imagen del salón -->
-          <div class="flex-shrink-0 w-32 h-20 overflow-hidden rounded-md border border-gray-300 dark:border-gray-600">
+      <div class="grid grid-cols-[25rem_11rem_18rem_9rem_11rem] items-center py-4 px-2 reserva-item"
+        data-fecha="{{ reserva.fecha_reserva|date:'Y-m-d' }}">
+
+        <!-- Salón -->
+        <div class="flex items-center gap-4">
+          <div class="w-48 h-35 rounded-md overflow-hidden border border-gray-300 bg-gray-100">
             {% if reserva.salon.imagen %}
-              <img src="{{ reserva.salon.imagen.url }}" alt="Imagen de {{ reserva.salon.nombre }}" class="object-cover w-full h-full">
+            <img src="{{ reserva.salon.imagen.url }}" class="object-cover w-full h-full">
             {% else %}
-              <div class="flex items-center justify-center bg-gray-200 dark:bg-gray-700 text-gray-400 text-sm w-full h-full">
-                Sin imagen
-              </div>
+            <div class="flex items-center justify-center text-gray-400 text-xs h-full">Sin imagen</div>
             {% endif %}
           </div>
 
-          <!-- Datos de la reserva -->
-          <div class="flex-1">
-            <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100">{{ reserva.salon.nombre }}</h2>
-            <p class="text-gray-600 dark:text-gray-300">Fecha: {{ reserva.fecha_reserva }}</p>
-            <p class="text-gray-600 dark:text-gray-300">Categoría: {{ reserva.salon.categoria|title }}</p>
+          <div class="flex flex-col">
+            <span class="font-semibold text-gray-800 text-lg">{{ reserva.salon.nombre }}</span>
+            <span class="text-gray-500 text-sm">{{ reserva.salon.categoria|title }}</span>
           </div>
         </div>
 
-        <!-- Precio y botón eliminar -->
-        <div class="flex flex-col items-end gap-2">
-          <span class="text-green-600 dark:text-green-400 font-semibold">
-            Pagado: ${{ reserva.precio_total|intcomma }} MXN
-          </span>
-
-          <!-- Formulario para eliminar -->
-          <form method="post" action="{% url 'eliminar_reservacion' reserva.id %}">
-            {% csrf_token %}
-            <button 
-              type="submit" 
-              class="bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800 text-white px-4 py-1 rounded font-semibold transition shadow"
-              onclick="return confirm('¿Estás seguro que quieres eliminar esta reservación?');">
-              Eliminar
-            </button>
-          </form>
+        <!-- Fecha -->
+        <div class="flex items-center justify-center text-gray-500 text-sm">
+          {{ reserva.fecha_reserva }}
         </div>
-      </li>
+
+        <!-- Precio -->
+        <div class="flex items-center justify-center text-gray-900 font-semibold">
+          ${{ reserva.precio_total|intcomma }} MXN
+        </div>
+
+        <!-- Estado -->
+        <div class="flex items-center justify-center">
+          <span class="px-2 py-1 text-xs rounded-full 
+                {% if reserva.estado == 'pendiente' %} bg-yellow-100 text-yellow-800
+                {% elif reserva.estado == 'confirmada' %} bg-green-100 text-green-800
+                {% elif reserva.estado == 'cancelada' %} bg-red-100 text-red-800
+                {% endif %}">
+            {{ reserva.estado|title }}
+          </span>
+        </div>
+
+        <!-- Info -->
+        <div class="flex items-center justify-center">
+          <a href="{% url 'ver_mi_reservacion' reserva.id %}"
+            class="text-blue-600 hover:underline text-sm font-semibold">
+            Ver reservación
+          </a>
+        </div>
+
+      </div>
       {% endfor %}
-    </ul>
-  {% else %}
-    <p class="text-center text-gray-500 dark:text-gray-400">No tienes reservaciones aún.</p>
-  {% endif %}
+    </div>
+
+    {% else %}
+    <p class="text-center text-gray-500 py-6">Aún no tienes reservaciones.</p>
+    {% endif %}
+
+  </div>
 </div>
+
+
+<!-- ================= JS FILTRO ================= -->
+<script>
+  const radios = document.querySelectorAll('input[name="fecha_filtro"]');
+  const resetBtn = document.getElementById('resetFechaFiltro');
+  const items = document.querySelectorAll('.reserva-item');
+
+  function filtrarReservaciones(valor) {
+    const hoy = new Date().setHours(0, 0, 0, 0);
+
+    items.forEach(item => {
+      const [y, m, d] = item.dataset.fecha.split('-');
+      const fechaItem = new Date(y, m - 1, d).setHours(0, 0, 0, 0);
+
+
+      item.style.display =
+        valor === 'proximos' ? (fechaItem >= hoy ? '' : 'none') :
+          valor === 'pasados' ? (fechaItem < hoy ? '' : 'none') :
+            '';
+    });
+  }
+
+  radios.forEach(radio => {
+    radio.addEventListener('change', e => filtrarReservaciones(e.target.value));
+  });
+
+  resetBtn.addEventListener('click', () => {
+    items.forEach(item => item.style.display = '');
+    radios.forEach(r => r.checked = false);
+  });
+</script>
+
 {% endblock %}

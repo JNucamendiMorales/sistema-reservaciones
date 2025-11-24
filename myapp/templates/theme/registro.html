@@ -1,51 +1,87 @@
 {% extends 'theme/base.html' %}
-{% load form_tags %}
 {% block title %}Registrarse{% endblock %}
+{% load form_tags %}
+{% block body_class %}overflow-hidden{% endblock %}
 
 {% block content %}
-<div class="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-  <div class="max-w-md w-full bg-white rounded-xl shadow-lg p-8 space-y-6">
-    <h2 class="text-3xl font-extrabold text-indigo-600 text-center">Crear una cuenta</h2>
-    
-    <form method="post" novalidate class="space-y-5">
-      {% csrf_token %}
-      {{ form.non_field_errors }}
+<div class="h-screen w-screen flex items-center justify-center bg-gray-50">
+  <!-- Tarjeta grande ocupando 75% de ancho y 70% de alto -->
+  <div class="flex w-3/4 h-7/10 max-w-7xl bg-white rounded-3xl shadow-2xl overflow-hidden -translate-y-14">
 
-      <div>
-        <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Usuario</label>
-        {{ form.username|add_class:"w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" }}
-        {{ form.username.errors }}
+    <!-- Izquierda: Imagen -->
+    <div class="w-1/2 bg-indigo-100">
+      <img src="/media/login/sign_up.png" alt="Registro Image" class="h-full w-full object-cover">
+    </div>
+
+    <!-- Derecha: Formulario igual al login.html -->
+    <div class="w-1/2 p-10 flex flex-col justify-center space-y-5 text-left">
+
+      <!-- Logo centrado -->
+      <div class="flex justify-center mb-4">
+        <a href="{% url 'inicio' %}">
+          <img src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600" 
+               alt="Logo" class="h-10 w-auto" />
+        </a>
       </div>
 
-      <div>
-        <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Correo electrónico</label>
-        {{ form.email|add_class:"w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" }}
-        {{ form.email.errors }}
-      </div>
+      <!-- Título -->
+      <h2 class="text-2xl font-extrabold text-indigo-600 text-center">Crea tu cuenta</h2>
 
-      <div>
-        <label for="{{ form.password1.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
-        {{ form.password1|add_class:"w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" }}
-        {{ form.password1.errors }}
-      </div>
+      <!-- Texto login -->
+      <p class="text-center text-xs text-gray-600">
+        ¿Ya tienes cuenta?
+        <a href="{% url 'login' %}" class="text-indigo-600 hover:underline font-medium">Inicia sesión aquí</a>
+      </p>
 
-      <div>
-        <label for="{{ form.password2.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Confirmar contraseña</label>
-        {{ form.password2|add_class:"w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" }}
-        {{ form.password2.errors }}
-      </div>
+      <!-- Formulario de registro -->
+      <form method="post" novalidate class="space-y-3">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
 
-      <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-md py-3 transition">
-        Registrarse
-      </button>
-    </form>
+        <!-- Usuario -->
+        {% if form.username %}
+        <div>
+          <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Usuario</label>
+          {{ form.username|add_class:"w-full border border-gray-300 rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500" }}
+          {{ form.username.errors }}
+        </div>
+        {% endif %}
 
-    <p class="text-center text-sm text-gray-600">
-      ¿Ya tienes cuenta?
-      <a href="{% url 'login' %}" class="text-indigo-600 hover:underline font-medium">
-        Inicia sesión aquí
-      </a>
-    </p>
+        <!-- Correo electrónico -->
+        {% if form.email %}
+        <div>
+          <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Correo electrónico</label>
+          {{ form.email|add_class:"w-full border border-gray-300 rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500" }}
+          {{ form.email.errors }}
+        </div>
+        {% endif %}
+
+        <!-- Contraseña -->
+        {% if form.password1 %}
+        <div>
+          <label for="{{ form.password1.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+          {{ form.password1|add_class:"w-full border border-gray-300 rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500" }}
+          {{ form.password1.errors }}
+        </div>
+        {% endif %}
+
+        <!-- Repetir contraseña -->
+        {% if form.password2 %}
+        <div>
+          <label for="{{ form.password2.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Confirmar contraseña</label>
+          {{ form.password2|add_class:"w-full border border-gray-300 rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500" }}
+          {{ form.password2.errors }}
+        </div>
+        {% endif %}
+
+        <!-- Botón -->
+        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-md py-2.5 transition">
+          Registrarse
+        </button>
+      </form>
+
+    </div>
+
   </div>
 </div>
 {% endblock %}

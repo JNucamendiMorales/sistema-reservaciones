@@ -1,0 +1,247 @@
+{% extends "admin_custom/base_admin.html" %}
+{% block title %}Usuarios{% endblock %}
+
+{% block header %}
+Gestión de Usuarios
+{% endblock %}
+
+{% block content %}
+
+<div class="p-6 bg-gray-900 min-h-screen text-gray-100">
+
+  <!-- 🔹 Botón alineado a la derecha y más arriba -->
+  <div class="flex justify-end items-center mb-4 -mt-2">
+    <button id="btnNuevo"
+      class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg transition shadow-md font-medium">
+      + Nuevo Usuario
+    </button>
+  </div>
+
+  <!-- 🔹 Tabla de usuarios -->
+  <div class="overflow-x-auto rounded-lg shadow-lg border border-gray-800">
+    <table class="w-full border-collapse">
+      <thead class="bg-gray-800 text-gray-300">
+        <tr>
+          <th class="py-3 px-4 text-left font-medium">Usuario</th>
+          <th class="py-3 px-4 text-left font-medium">Email</th>
+          <th class="py-3 px-4 text-left font-medium">Fecha de registro</th>
+          <th class="py-3 px-4 text-center font-medium">Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tablaUsuarios">
+        {% for user in usuarios %}
+        <tr class="border-b border-gray-800 hover:bg-gray-800 transition">
+          <td class="py-3 px-4">{{ user.username }}</td>
+          <td class="py-3 px-4">{{ user.email }}</td>
+          <td class="py-3 px-4">{{ user.date_joined|date:"Y-m-d" }}</td>
+          <td class="py-3 px-4 text-center">
+            <button data-id="{{ user.id }}"
+              class="eliminar bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md text-sm transition">
+              Eliminar
+            </button>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="4" class="text-center py-6 text-gray-500">
+            No hay usuarios registrados.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 🟦 Modal crear usuario -->
+<div id="modalUsuario" class="fixed inset-0 bg-black bg-opacity-60 hidden justify-center items-center">
+  <div class="bg-gray-800 w-full max-w-md rounded-xl p-6 shadow-2xl">
+    <h2 class="text-xl font-semibold text-white mb-4">Nuevo Usuario</h2>
+    <form id="formUsuario">
+      {% csrf_token %}
+      <div class="space-y-3">
+        <div>
+          <label class="block text-gray-300 text-sm mb-1">Nombre de usuario</label>
+          <input type="text" name="username"
+            class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-600"
+            required>
+        </div>
+        <div>
+          <label class="block text-gray-300 text-sm mb-1">Correo electrónico</label>
+          <input type="email" name="email"
+            class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-600"
+            required>
+        </div>
+        <div>
+          <label class="block text-gray-300 text-sm mb-1">Contraseña</label>
+          <input type="password" name="password1"
+            class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-600"
+            required>
+        </div>
+        <div>
+          <label class="block text-gray-300 text-sm mb-1">Confirmar contraseña</label>
+          <input type="password" name="password2"
+            class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-600"
+            required>
+        </div>
+      </div>
+      <div class="flex justify-end mt-6 space-x-3">
+        <button type="button" id="btnCerrar"
+          class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-gray-200">
+          Cancelar
+        </button>
+        <button type="submit"
+          class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white">
+          Guardar
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- 🟥 Modal eliminar -->
+<div id="modalEliminar" class="fixed inset-0 bg-black bg-opacity-60 hidden justify-center items-center">
+  <div class="bg-gray-800 w-full max-w-sm rounded-xl p-6 shadow-2xl text-center">
+    <h2 class="text-xl font-semibold text-white mb-4">Confirmar eliminación</h2>
+    <p class="text-gray-400 mb-6">¿Seguro que deseas eliminar este usuario?</p>
+    <div class="flex justify-center space-x-4">
+      <button id="btnCancelarEliminar"
+        class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-gray-200">
+        Cancelar
+      </button>
+      <button id="btnConfirmarEliminar"
+        class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-white">
+        Eliminar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- 🟩 Nuevo modal de éxito -->
+<div id="modalExito" class="fixed inset-0 bg-black bg-opacity-70 hidden justify-center items-center">
+  <div class="bg-gray-800 w-full max-w-sm rounded-xl p-6 shadow-2xl text-center">
+    <h2 class="text-2xl font-semibold text-green-400 mb-4">✅ Usuario creado con éxito</h2>
+  </div>
+</div>
+
+<!-- ✅ Success modal (auto-generated like in salones) -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const modal = document.getElementById("modalUsuario");
+  const btnNuevo = document.getElementById("btnNuevo");
+  const btnCerrar = document.getElementById("btnCerrar");
+  const form = document.getElementById("formUsuario");
+
+  const modalEliminar = document.getElementById("modalEliminar");
+  const btnCancelarEliminar = document.getElementById("btnCancelarEliminar");
+  const btnConfirmarEliminar = document.getElementById("btnConfirmarEliminar");
+
+  let usuarioIdAEliminar = null;
+
+  // ✅ Create universal success modal (same as salones)
+  const modalSuccess = document.createElement("div");
+  modalSuccess.className =
+    "fixed inset-0 bg-black bg-opacity-60 hidden justify-center items-center z-50";
+  modalSuccess.innerHTML = `
+      <div class="bg-gray-800 rounded-xl p-6 shadow-2xl w-full max-w-sm text-center">
+          <h2 class="text-xl text-white font-semibold mb-3">¡Éxito!</h2>
+          <p class="text-gray-300 mb-6">El usuario se ha guardado correctamente.</p>
+          <button id="btnCerrarSuccess" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white">Aceptar</button>
+      </div>
+  `;
+  document.body.appendChild(modalSuccess);
+
+  function showSuccessModal() {
+    modalSuccess.classList.remove("hidden");
+    modalSuccess.classList.add("flex");
+  }
+
+  document
+    .getElementById("btnCerrarSuccess")
+    .addEventListener("click", () => {
+      modalSuccess.classList.add("hidden");
+      location.reload();
+    });
+
+  // ✅ Helper: show inline validation errors
+  function showErrors(errors) {
+    form.querySelectorAll(".error-text").forEach((e) => e.remove());
+    for (const [field, messages] of Object.entries(errors)) {
+      const input = form.querySelector(`[name="${field}"]`);
+      if (input) {
+        const error = document.createElement("p");
+        error.className = "error-text text-red-500 text-sm mt-1";
+        error.textContent = messages.join(", ");
+        input.insertAdjacentElement("afterend", error);
+      }
+    }
+  }
+
+  // ✅ Open modal
+  btnNuevo.addEventListener("click", () => {
+    form.reset();
+    form.querySelectorAll(".error-text").forEach((e) => e.remove());
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+  });
+
+  // ✅ Close modals
+  btnCerrar.addEventListener("click", () => modal.classList.add("hidden"));
+  btnCancelarEliminar.addEventListener("click", () =>
+    modalEliminar.classList.add("hidden")
+  );
+
+  // ✅ Submit user form
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    form.querySelectorAll(".error-text").forEach((e) => e.remove());
+    const data = new FormData(form);
+    const res = await fetch("{% url 'crear_usuario' %}", {
+      method: "POST",
+      body: data,
+    });
+    const result = await res.json();
+
+    if (result.success) {
+      modal.classList.add("hidden");
+      showSuccessModal();
+    } else if (result.errors) {
+      showErrors(result.errors);
+    } else {
+      showErrors({ general: ["Error desconocido."] });
+    }
+  });
+
+  // ✅ Confirm delete user
+  document.querySelectorAll(".eliminar").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      usuarioIdAEliminar = btn.dataset.id;
+      modalEliminar.classList.remove("hidden");
+      modalEliminar.classList.add("flex");
+    });
+  });
+
+  btnConfirmarEliminar.addEventListener("click", async () => {
+    if (!usuarioIdAEliminar) return;
+    const csrfToken = document.querySelector("[name=csrfmiddlewaretoken]").value;
+    const res = await fetch(`/admin_custom/usuarios/eliminar/${usuarioIdAEliminar}/`, {
+      method: "POST",
+      headers: { "X-CSRFToken": csrfToken },
+    });
+    const result = await res.json();
+    if (result.success) {
+      modalEliminar.classList.add("hidden");
+      const row = document
+        .querySelector(`button[data-id="${usuarioIdAEliminar}"]`)
+        .closest("tr");
+      row.classList.add("opacity-50");
+      setTimeout(() => row.remove(), 500);
+    } else {
+      alert("Error al eliminar el usuario.");
+    }
+  });
+});
+</script>
+
+
+{% endblock %}

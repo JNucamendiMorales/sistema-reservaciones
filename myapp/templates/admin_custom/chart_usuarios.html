@@ -1,0 +1,237 @@
+{% extends "admin_custom/base_admin.html" %}
+{% load static %}
+
+{% block title %}Gráficos de Usuarios{% endblock %}
+{% block header %}Gráficos de Usuarios{% endblock %}
+
+{% block content %}
+<div class="flex flex-wrap gap-8 items-start overflow-hidden">
+
+  <!-- === GRID PRINCIPAL === -->
+  <div class="flex flex-wrap gap-6">
+
+    <!-- 1️⃣ NUEVOS USUARIOS REGISTRADOS (Pastel) -->
+    <div class="bg-gradient-to-b from-gray-800 to-gray-900 rounded-xl p-6 border border-gray-700 shadow-lg h-64 w-[500px]">
+      <h5 class="text-gray-400 text-sm mb-4">Nuevos usuarios registrados</h5>
+      <div class="flex items-start justify-between h-full">
+        <!-- Canvas -->
+        <div class="flex-shrink-0 self-start">
+          <canvas id="usuariosPieChart" style="width:100%;height:180px;"></canvas>
+        </div>
+
+        <!-- Leyenda -->
+        <div id="usuariosPieLegend" style="transform: translateX(-12px);" class="text-sm text-gray-300 flex flex-col justify-center space-y-1"></div>
+
+
+      </div>
+    </div>
+
+    <!-- 3️⃣ USUARIOS MÁS ACTIVOS (Barras) -->
+    <div class="bg-gradient-to-b from-gray-800 to-gray-900 rounded-xl p-6 border border-gray-700 shadow-lg h-64 w-[640px] ml-1">
+      <h5 class="text-gray-400 text-sm mb-2">Usuarios más activos</h5>
+      <div class="h-full w-full">
+        <canvas id="usuariosBarChart" class="h-full w-full"></canvas>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Tarjeta + botones -->
+  <div class="flex flex-nowrap gap-8 items-start">
+
+    <!-- 2️⃣ USUARIOS CON MAYORES INGRESOS (Líneas) -->
+    <div class="bg-gradient-to-b from-gray-800 to-gray-900 rounded-xl p-6 border border-gray-700 shadow-lg h-[320px] w-[800px]">
+      <h5 class="text-gray-400 text-sm mb-3">📈 Usuarios con mayores ingresos</h5>
+      <div class="h-full w-full">
+        <canvas id="usuariosLineChart" class="h-full w-full"></canvas>
+      </div>
+    </div>
+
+    <!-- === BOTONES DE FILTRO === -->
+    <div class="flex flex-col justify-start space-y-8 mt-4">
+
+      <!-- Grupo: Periodo -->
+      <div class="flex flex-col items-start space-y-2">
+        <span class="text-gray-300 font-medium text-lg">Periodo</span>
+        <div class="flex space-x-3">
+          <button id="btnSemana" class="filtro-periodo px-4 py-2 rounded-lg text-white font-semibold text-sm transition bg-indigo-600">🗓️ Semanal</button>
+          <button id="btnMes" class="filtro-periodo px-4 py-2 rounded-lg text-gray-200 font-semibold text-sm bg-gray-700 hover:bg-gray-600 transition">📅 Mensual</button>
+        </div>
+      </div>
+
+      <!-- Grupo: Análisis -->
+      <div class="flex flex-col items-start space-y-2">
+        <span class="text-gray-300 font-medium text-lg">Análisis</span>
+        <div class="flex space-x-3">
+          <button id="btnMejores" class="filtro-modo px-4 py-2 bg-green-600 rounded-lg text-white font-semibold text-sm hover:bg-green-500 transition">🏆 Mejor</button>
+          <button id="btnPeores" class="filtro-modo px-4 py-2 bg-gray-700 rounded-lg text-gray-200 font-semibold text-sm hover:bg-gray-600 transition">⚠️ Peor</button>
+        </div>
+      </div>
+
+      <!-- Grupo: Descargar -->
+      <div class="flex flex-col items-start space-y-2">
+        <span class="text-gray-300 font-medium text-lg">Descargar</span>
+        <div class="flex space-x-3">
+          <button id="btnXLSX" class="px-4 py-2 bg-blue-600 rounded-lg text-white font-semibold text-sm hover:bg-blue-500 transition">📊 XLSX</button>
+          <button id="btnCSV" class="px-4 py-2 bg-blue-600 rounded-lg text-white font-semibold text-sm hover:bg-blue-500 transition">🗃️ CSV</button>
+          <button id="btnPDF" class="px-4 py-2 bg-blue-600 rounded-lg text-white font-semibold text-sm hover:bg-blue-500 transition">📄 PDF</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<style>
+html, body { overflow: hidden !important; height: 100%; }
+* { box-sizing: border-box; max-width: 100vw; }
+body { margin: 0; padding: 0; }
+canvas { display: block; max-width: 100%; height: auto; }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+let periodo = "semana";
+let modo = "mejores";
+
+let pieChart, lineChart, barChart;
+
+async function cargarDatos() {
+  const res = await fetch(`/api/datos_usuarios/?periodo=${periodo}&modo=${modo}`);
+  const data = await res.json();
+  actualizarGraficas(data);
+}
+
+function actualizarGraficas(data) {
+  const nuevos = data.nuevos_usuarios || [];
+  const ingresos = data.usuarios_ingresos || [];
+  const activos = data.usuarios_activos || [];
+
+  // --- PIE CHART ---
+  const pieCtx = document.getElementById("usuariosPieChart").getContext("2d");
+  if(pieChart) pieChart.destroy();
+
+  const labels = nuevos.map(u => u.fecha);
+  const filledData = nuevos.map(u => parseInt(u.total || 0));
+
+  pieChart = new Chart(pieCtx, {
+    type:"pie",
+    data:{ 
+      labels: labels, 
+      datasets:[{ 
+        data: filledData, 
+        backgroundColor:["#4F46E5","#22C55E","#EAB308","#F97316","#EF4444","#14B8A6","#A855F7"] 
+      }] 
+    },
+    options:{ 
+      responsive:true, 
+      maintainAspectRatio:false, 
+      plugins:{legend:{display:false}}, 
+      layout:{padding:10} 
+    }
+  });
+
+  // Manual legend
+  const legend = document.getElementById("usuariosPieLegend");
+  legend.innerHTML = labels.map((label, i) => {
+    const color = pieChart.data.datasets[0].backgroundColor[i % 7];
+    return `
+      <div class="flex items-center">
+          <span style="background-color:${color}; width:12px; height:12px; display:inline-block; border-radius:3px; margin-right:8px;"></span>
+          <span>${label}: </span>
+          <strong style="margin-left:6px;">${filledData[i]}</strong>
+      </div>
+    `;
+}).join("");
+
+
+  // --- LINE CHART ---
+  // --- LINE CHART ---
+const lineCtx = document.getElementById("usuariosLineChart").getContext("2d");
+if (lineChart) lineChart.destroy();
+
+lineChart = new Chart(lineCtx, {
+  type: "line",
+  data: {
+    labels: ingresos.map(u => u.usuario),
+    datasets: [{
+      label: "Ingresos (MXN)",
+      data: ingresos.map(u => parseFloat(u.total)),
+      borderColor: "#22C55E",
+      backgroundColor: "rgba(34,197,94,0.2)",
+      tension: 0.3,
+      fill: true
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,   // 🔥 Hace que la gráfica se expanda correctamente
+
+    plugins: {
+      legend: { labels: { color: "#ddd" } }
+    },
+
+    layout: { padding: 10 },
+
+    scales: {
+      x: { ticks: { color: "#ccc" } },
+      y: { ticks: { color: "#ccc" } }
+    }
+  }
+});
+
+
+  // --- BAR CHART ---
+  // --- BAR CHART ---
+const barCtx = document.getElementById("usuariosBarChart").getContext("2d");
+if (barChart) barChart.destroy();
+
+barChart = new Chart(barCtx, {
+  type: "bar",
+  data: {
+    labels: activos.map(u => u.usuario),
+    datasets: [{
+      label: "Reservaciones",
+      data: activos.map(u => u.total),
+      backgroundColor: "#3B82F6"
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,  // 🔥 Hace que use todo el ancho y alto del contenedor
+    
+    plugins: {
+      legend: {
+        labels: { color: "#ddd" }
+      }
+    },
+
+    layout: { padding: 10 },
+
+    scales: {
+      x: { ticks: { color: "#ccc" } },
+      y: { ticks: { color: "#ccc" } }
+    }
+  }
+});
+
+}
+
+function activarBoton(grupo, activoId){
+  document.querySelectorAll(`.${grupo}`).forEach(btn=>{
+    if(btn.id===activoId){ btn.classList.add("bg-indigo-600","text-white"); btn.classList.remove("bg-gray-700","text-gray-200"); }
+    else { btn.classList.remove("bg-indigo-600","text-white"); btn.classList.add("bg-gray-700","text-gray-200"); }
+  });
+}
+
+document.getElementById("btnSemana").onclick = ()=>{ periodo="semana"; activarBoton("filtro-periodo","btnSemana"); cargarDatos(); };
+document.getElementById("btnMes").onclick = ()=>{ periodo="mes"; activarBoton("filtro-periodo","btnMes"); cargarDatos(); };
+document.getElementById("btnMejores").onclick = ()=>{ modo="mejores"; activarBoton("filtro-modo","btnMejores"); cargarDatos(); };
+document.getElementById("btnPeores").onclick = ()=>{ modo="peores"; activarBoton("filtro-modo","btnPeores"); cargarDatos(); };
+
+// Inicial
+cargarDatos();
+</script>
+
+{% endblock %}
+ 

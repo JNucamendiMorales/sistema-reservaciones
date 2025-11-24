@@ -1,6 +1,9 @@
 from django.contrib import admin
-from .models import Salon,Reservacion
 
-# Register your models here.
-admin.site.register(Salon)
-admin.site.register(Reservacion)
+# --- Override del template de login del Admin default ---
+admin.site.login_template = "admin_custom/login_admin.html"
+
+# Si luego registras modelos, van aquí:
+# from .models import Salon, Reservacion
+# admin.site.register(Salon)
+# admin.site.register(Reservacion)

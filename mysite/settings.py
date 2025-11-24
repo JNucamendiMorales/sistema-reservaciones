@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'rest_framework',
-    'myapp',
+    'myapp.apps.MyappConfig',
     'tailwind',
     'django_browser_reload',
     'corsheaders',
@@ -81,6 +81,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'myapp.context_processors.reservaciones_usuario',
+
             ],
         },
     },
@@ -95,13 +97,14 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv('DB_NAME', 'reservacionesdb'),
+        'NAME': os.getenv('DB_NAME', 'reservacionesdb_new'),
         'USER': os.getenv('DB_USER', 'nuca'),
         'PASSWORD': os.getenv('DB_PASSWORD', 'nuca123'),
         'HOST': os.getenv('DB_HOST', 'localhost'),  # 'db' en Docker, 'localhost' local
         'PORT': os.getenv('DB_PORT', '3306'),
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            'charset':'utf8mb4',
         }
     }
 }
@@ -139,7 +142,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # =========================
 # LOGIN/LOGOUT
 # =========================
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/login-redirect/'
 LOGOUT_REDIRECT_URL = '/'
 LOGIN_URL = '/login/'
 

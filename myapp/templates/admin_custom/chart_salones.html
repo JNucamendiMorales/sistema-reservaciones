@@ -1,0 +1,300 @@
+{% extends "admin_custom/base_admin.html" %}
+{% load static %}
+
+{% block title %}Gráficos de Salones{% endblock %}
+{% block header %}Gráficos de Salones{% endblock %}
+
+{% block content %}
+<div class="flex flex-wrap gap-8 items-start overflow-hidden">
+
+  <!-- === GRID PRINCIPAL === -->
+  <div class="flex flex-wrap gap-6">
+
+    <!-- 1️⃣ TOP 5 CALIFICACIÓN (Barras verticales) -->
+    <div
+      class="bg-gradient-to-b from-gray-800 to-gray-900 rounded-xl p-6 border border-gray-700 shadow-lg h-[260px] w-[590px]">
+      <h5 class="text-gray-400 text-sm mb-4">Salones con mejores reseñas</h5>
+      <div class="h-[190px] w-full">
+        <canvas id="salonesRatingChart" style="width:100%;height:220px;"></canvas>
+      </div>
+    </div>
+
+    <!-- 2️⃣ TOP 5 PRECIOS (Barras horizontales) -->
+    <div
+      class="bg-gradient-to-b from-gray-800 to-gray-900 rounded-xl p-6 border border-gray-700 shadow-lg h-[260px] w-[650px]">
+      <h5 class="text-gray-400 text-sm mb-4">Salones mas caros</h5>
+      <div class="h-[190px] w-full">
+        <canvas id="salonesPriceChart" style="width:100%;height:220px;"></canvas>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Tarjeta + botones (line chart + controles) -->
+  <div class="flex flex-nowrap gap-8 items-start">
+
+    <!-- 3️⃣ TOP 5 INGRESOS (Líneas) -->
+    <div
+      class="bg-gradient-to-b from-gray-800 to-gray-900 rounded-xl p-6 border border-gray-700 shadow-lg h-[340px] w-[900px] flex">
+
+      <div class="h-[260px] w-full">
+        <h5 class="text-gray-400 text-sm mb-3">Salones con más Ingresos</h5>
+        <canvas id="salonesIncomeChart" class="h-full w-[300px]"></canvas>
+      </div>
+      
+
+    </div>
+
+    <!-- === BOTONES DE FILTRO === -->
+    <div class="flex flex-col justify-start space-y-8 mt-4">
+
+      <!-- Grupo: Periodo -->
+      <div class="flex flex-col items-start space-y-2">
+        <span class="text-gray-300 font-medium text-lg">Periodo</span>
+        <div class="flex space-x-3">
+          <button id="btnSemana"
+            class="filtro-periodo px-4 py-2 rounded-lg text-white font-semibold text-sm transition bg-indigo-600">🗓️
+            Semanal</button>
+          <button id="btnMes"
+            class="filtro-periodo px-4 py-2 rounded-lg text-gray-200 font-semibold text-sm bg-gray-700 hover:bg-gray-600 transition">📅
+            Mensual</button>
+        </div>
+      </div>
+
+      <!-- Grupo: Análisis -->
+      <div class="flex flex-col items-start space-y-2">
+        <span class="text-gray-300 font-medium text-lg">Análisis</span>
+        <div class="flex space-x-3">
+          <button id="btnMejores"
+            class="filtro-modo px-4 py-2 bg-green-600 rounded-lg text-white font-semibold text-sm hover:bg-green-500 transition">🏅
+            Mejores</button>
+          <button id="btnPeores"
+            class="filtro-modo px-4 py-2 bg-gray-700 rounded-lg text-gray-200 font-semibold text-sm hover:bg-gray-600 transition">⚠️
+            Peores</button>
+        </div>
+      </div>
+
+      <!-- Grupo: Descargar -->
+      <div class="flex flex-col items-start space-y-2">
+        <span class="text-gray-300 font-medium text-lg">Descargar</span>
+        <div class="flex space-x-3">
+          <button id="btnXLSX"
+            class="px-4 py-2 bg-blue-600 rounded-lg text-white font-semibold text-sm hover:bg-blue-500 transition">📊
+            XLSX</button>
+          <button id="btnCSV"
+            class="px-4 py-2 bg-blue-600 rounded-lg text-white font-semibold text-sm hover:bg-blue-500 transition">🗃️
+            CSV</button>
+          <button id="btnPDF"
+            class="px-4 py-2 bg-blue-600 rounded-lg text-white font-semibold text-sm hover:bg-blue-500 transition">📄
+            PDF</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<style>
+  html,
+  body {
+    overflow: hidden !important;
+    height: 100%;
+  }
+
+  * {
+    box-sizing: border-box;
+    max-width: 100vw;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
+  canvas {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+
+  /*Para ver la toda estructura en rojo
+
+  * { outline: 1px solid red; }
+  
+  */
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  let periodo = "semana";
+  let modo = "mejores";
+
+  let ratingChart = null;
+  let priceChart = null;
+  let incomeChart = null;
+
+  const COLORS = [
+    "#4F46E5", "#22C55E", "#EAB308", "#F97316", "#EF4444",
+    "#14B8A6", "#A855F7", "#3B82F6", "#06B6D4", "#F43F5E"
+  ];
+
+  function fetchJson(url) {
+    return fetch(url).then(r => {
+      if (!r.ok) throw new Error(`HTTP ${r.status} ${r.statusText}`);
+      return r.json();
+    });
+  }
+
+  function activarBoton(grupo, activoId) {
+    document.querySelectorAll(`.${grupo}`).forEach(btn => {
+      if (btn.id === activoId) {
+        btn.classList.add("bg-indigo-600", "text-white");
+        btn.classList.remove("bg-gray-700", "text-gray-200");
+      } else {
+        btn.classList.remove("bg-indigo-600", "text-white");
+        btn.classList.add("bg-gray-700", "text-gray-200");
+      }
+    });
+  }
+
+  async function cargarSalonesCharts() {
+    const q = `?periodo=${encodeURIComponent(periodo)}&modo=${encodeURIComponent(modo)}`;
+
+    // Top calificación
+    try { renderRatingChart(await fetchJson(`/api/salones/top-calificacion${q}`)); } 
+    catch { renderRatingChart([]); }
+
+    // Top precio
+    try { renderPriceChart(await fetchJson(`/api/salones/top-precio${q}`)); } 
+    catch { renderPriceChart([]); }
+
+    // Top ingresos
+    try { renderIncomeChart(await fetchJson(`/api/salones/top-ingresos${q}`)); } 
+    catch { renderIncomeChart(null); }
+  }
+
+  function renderRatingChart(data) {
+    let items = Array.isArray(data) ? data.slice(0, 5) : [];
+    if (!items.length && data?.results) items = data.results.slice(0,5);
+    while(items.length<5) items.push({nombre:"-", calificacion:0});
+    items.sort((a,b)=>parseFloat(b.calificacion||0)-parseFloat(a.calificacion||0));
+
+    const labels = items.map(s=>s.nombre);
+    const values = items.map(s=>parseFloat(s.calificacion||0));
+
+    const ctx = document.getElementById("salonesRatingChart").getContext("2d");
+    if(ratingChart) ratingChart.destroy();
+    ratingChart = new Chart(ctx,{
+      type:"bar",
+      data:{labels, datasets:[{label:"Calificación", data:values, backgroundColor:COLORS.slice(0,labels.length)}]},
+      options:{
+        indexAxis:'y',
+        responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{display:false}, tooltip:{callbacks:{label:ctx=>` ${ctx.raw} ⭐`}}},
+        scales:{x:{beginAtZero:true, max:5, ticks:{color:"#ccc", stepSize:0.5}}, y:{ticks:{color:"#ccc"}}}
+      }
+    });
+  }
+
+  function renderPriceChart(data){
+    let items = Array.isArray(data)?data.slice(0,5):[];
+    if(!items.length && data?.results) items=data.results.slice(0,5);
+    while(items.length<5) items.push({nombre:'-', precio:0});
+    items.sort((a,b)=>parseFloat(b.precio||0)-parseFloat(a.precio||0));
+
+    const labels = items.map(s=>s.nombre);
+    const values = items.map(s=>parseFloat(s.precio||0));
+
+    const ctx = document.getElementById("salonesPriceChart").getContext("2d");
+    if(priceChart) priceChart.destroy();
+    priceChart = new Chart(ctx,{
+      type:"bar",
+      data:{labels, datasets:[{label:"Precio (MXN)", data:values, backgroundColor:COLORS.slice(0,labels.length)}]},
+      options:{
+        indexAxis:'y',
+        responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{display:false}, tooltip:{callbacks:{label:ctx=>` $ ${Number(ctx.raw).toLocaleString()}`}}},
+        scales:{x:{ticks:{color:"#ccc", stepSize:10000, callback:v=>v?Number(v).toLocaleString():v}}, y:{ticks:{color:"#ccc"}}}
+      }
+    });
+  }
+
+  function renderIncomeChart(payload){
+  const defaultSemana = ["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"];
+  const defaultMes = ["1-5","6-10","11-15","16-20","21-25","26-31"];
+  let labels = periodo==="semana"?defaultSemana:defaultMes;
+  let series=[];
+
+  if(!payload){ for(let i=0;i<5;i++) series.push({salon:'-', data:labels.map(()=>0)}); }
+  else if(Array.isArray(payload)){
+    series = payload.slice(0,5);
+    labels = series[0]?.labels || labels;
+    series = series.map(s=>({salon:s.salon||s.nombre||'-', data:(s.data||[]).slice(0,labels.length).concat(Array(Math.max(0,labels.length-(s.data||[]).length)).fill(0))}));
+  } else {
+    labels = payload.labels||labels;
+    if(Array.isArray(payload.series)) series = payload.series.slice(0,5).map(s=>({salon:s.salon||s.nombre||'-', data:(s.data||[]).slice(0,labels.length).concat(Array(Math.max(0,labels.length-(s.data||[]).length)).fill(0))}));
+  }
+
+  if(series.length<5){ for(let i=series.length;i<5;i++) series.push({salon:'-', data:labels.map(()=>0)});}
+  if(modo==="peores") series = series.reverse();
+
+  const datasets = series.map((s,idx)=>{
+    const total = s.data.reduce((a,b)=>a+b,0); // calcular total
+    return {
+      label:`${s.salon}: $${total.toLocaleString()}`, // agregar total al label
+      data:s.data.map(v=>parseFloat(v||0)),
+      borderColor:COLORS[idx%COLORS.length],
+      backgroundColor:hexToRgba(COLORS[idx%COLORS.length],0.12),
+      tension:0.25, fill:false, pointRadius:4, pointHoverRadius:6
+    }
+  });
+
+  const ctx = document.getElementById("salonesIncomeChart").getContext("2d");
+  if(incomeChart) incomeChart.destroy();
+  incomeChart = new Chart(ctx,{
+    type:"line",
+    data:{labels, datasets},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{
+          display:true,
+          position:'right',
+          align:'start',
+          labels:{color:"#ddd", boxWidth:25, boxHeight:12, padding:24}
+        },
+        tooltip:{
+          callbacks:{
+            title: items => items[0]?.dataset.label.split(':')[0] || '', // mostrar solo nombre en tooltip
+            label: ctx => `${ctx.dataset.label.split(':')[0]}: $ ${Number(ctx.raw).toLocaleString()}`
+          }
+        }
+      },
+      scales:{
+        x:{ticks:{color:"#ccc"}},
+        y:{ticks:{color:"#ccc", stepSize: 10000, callback:v=>v?Number(v).toLocaleString():v}}
+      }
+    }
+  });
+}
+
+
+  function hexToRgba(hex, alpha){
+    const h = hex.replace('#',''), bigint=parseInt(h,16);
+    const r=(bigint>>16)&255, g=(bigint>>8)&255, b=bigint&255;
+    return `rgba(${r},${g},${b},${alpha})`;
+  }
+
+  // Button listeners
+  document.getElementById("btnSemana").onclick = ()=>{ periodo="semana"; activarBoton("filtro-periodo","btnSemana"); cargarSalonesCharts(); };
+  document.getElementById("btnMes").onclick = ()=>{ periodo="mes"; activarBoton("filtro-periodo","btnMes"); cargarSalonesCharts(); };
+  document.getElementById("btnMejores").onclick = ()=>{ modo="mejores"; activarBoton("filtro-modo","btnMejores"); cargarSalonesCharts(); };
+  document.getElementById("btnPeores").onclick = ()=>{ modo="peores"; activarBoton("filtro-modo","btnPeores"); cargarSalonesCharts(); };
+
+  // Initialize
+  activarBoton("filtro-periodo","btnSemana");
+  activarBoton("filtro-modo","btnMejores");
+  cargarSalonesCharts();
+</script>
+
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends 'admin_custom/base_admin.html' %}
+{% load static %}
+
+{% block title %}Dashboards Administrativo{% endblock %}
+
+{% block header %}
+Dashboards
+{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+
+  <!-- Top Summary Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+    <!-- Total de Reservaciones -->
+    <div class="bg-gray-800 p-4 rounded-xl shadow-lg border border-gray-700 flex flex-col items-center justify-center">
+      <p class="text-gray-400 text-sm mb-1">Total de Reservaciones</p>
+      <h2 class="text-3xl font-bold text-indigo-400">{{ total_reservations }}</h2>
+    </div>
+
+    <!-- Total de Usuarios -->
+    <div class="bg-gray-800 p-4 rounded-xl shadow-lg border border-gray-700 flex flex-col items-center justify-center">
+      <p class="text-gray-400 text-sm mb-1">Total de Usuarios</p>
+      <h2 class="text-3xl font-bold text-green-400">{{ total_users }}</h2>
+    </div>
+
+    <!-- Total de Salones -->
+    <div class="bg-gray-800 p-4 rounded-xl shadow-lg border border-gray-700 flex flex-col items-center justify-center">
+      <p class="text-gray-400 text-sm mb-1">Total de Salones</p>
+      <h2 class="text-3xl font-bold text-yellow-400">{{ total_salons }}</h2>
+    </div>
+  </div>
+
+  <!-- Analytic Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+  <!-- Reservaciones Semanales -->
+  <div class="bg-gray-800 rounded-2xl p-6 border border-gray-700 shadow-lg hover:shadow-indigo-500/30 hover:scale-[1.02] transition-all cursor-pointer"
+       onclick="window.location.href='{% url 'chart_reservaciones' %}'">
+    <h3 class="text-lg font-semibold text-indigo-400 mb-4 text-center">Dashboard de Reservaciones</h3>
+    <div class="h-72 flex items-center justify-center">
+      <img src="/media/charts/chart_bar.png" alt="Reservaciones"
+           class="object-cover w-[95%] h-[95%] rounded-2xl shadow-md hover:shadow-indigo-400/50 hover:scale-105 transition-all duration-300 ease-in-out">
+    </div>
+  </div>
+
+  <!-- Usuarios Nuevos Semanales -->
+  <div class="bg-gray-800 rounded-2xl p-6 border border-gray-700 shadow-lg hover:shadow-green-500/30 hover:scale-[1.02] transition-all cursor-pointer"
+       onclick="window.location.href='{% url 'chart_usuarios' %}'">
+    <h3 class="text-lg font-semibold text-green-400 mb-4 text-center">Dashboard de Usuarios</h3>
+    <div class="h-72 flex items-center justify-center">
+      <img src="/media/charts/chart_pie.png" alt="Usuarios Nuevos"
+           class="object-cover w-[95%] h-[95%] rounded-2xl shadow-md hover:shadow-green-400/50 hover:scale-105 transition-all duration-300 ease-in-out">
+    </div>
+  </div>
+
+  <!-- Salones Más Reservados -->
+  <div class="bg-gray-800 rounded-2xl p-6 border border-gray-700 shadow-lg hover:shadow-yellow-500/30 hover:scale-[1.02] transition-all cursor-pointer"
+       onclick="window.location.href='{% url 'chart_salones' %}'">
+    <h3 class="text-lg font-semibold text-yellow-400 mb-4 text-center">Dashboard de Salones</h3>
+    <div class="h-72 flex items-center justify-center">
+      <img src="/media/charts/chart_line.png" alt="Salones Más Reservados"
+           class="object-cover w-[95%] h-[95%] rounded-2xl shadow-md hover:shadow-yellow-400/50 hover:scale-105 transition-all duration-300 ease-in-out">
+    </div>
+  </div>
+
+</div>
+
+
+  
+
+</div>
+{% endblock %}

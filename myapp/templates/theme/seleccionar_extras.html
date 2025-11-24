@@ -1,0 +1,171 @@
+{% extends "theme/base.html" %}
+{% load humanize %}
+{% block navbar %}
+<!-- Navbar oculto -->
+{% endblock %}
+
+
+{% block title %}Seleccionar extras - Reservación{% endblock %}
+
+{% block content %}
+
+
+<!-- === GRID PRINCIPAL === -->
+ 
+
+<div class="max-w-5xl mx-auto mb-6 p-6">
+    {% include 'theme/step_component.html' with step=2 progress=50 %}
+</div>
+
+
+<div class="w-full mt-8 px-8 grid grid-cols-1 md:grid-cols-3 ">
+
+  
+
+  <!-- === COLUMNA IZQUIERDA: RESUMEN === -->
+<div class="md:col-span-1 max-w-[460px]">
+  <div class="bg-white rounded-xl border border-gray-200 p-6 sticky top-6">
+
+    <h2 class="text-2xl font-bold text-gray-900">{{ salon.nombre }}</h2>
+
+    
+<p class="text-lg font-semibold text-gray-800 mt-2">
+  ${{ salon.precio|intcomma }}
+</p>
+
+
+
+<!-- Fecha reservación justo debajo del precio en texto más pequeño -->
+<p class="text-sm text-gray-500 mt-1">
+  {% if reserva and reserva.fecha_reserva %}
+    Fecha: {{ reserva.fecha_reserva }}
+  {% else %}
+    Fecha: <span class="italic text-gray-400">Se selecciona en el paso anterior</span>
+  {% endif %}
+</p>
+
+
+    <div class="h-px bg-gray-200 my-2"></div>
+
+    <h3 class="text-sm font-medium text-gray-900">Extras seleccionados</h3>
+    <ul id="listaExtras" class="mt-3 space-y-1 text-sm text-gray-700 ml-1"></ul>
+
+    <div class="h-px bg-gray-200 my-6"></div>
+
+    <h3 class="text-lg font-bold text-gray-900">Total</h3>
+    <p class="text-2xl font-bold text-indigo-600 mt-1">
+      $<span id="totalTexto">{{ salon.precio|intcomma }}</span>
+    </p>
+  </div>
+</div>
+
+
+  <!-- === COLUMNA DERECHA: SERVICIOS === -->
+  <div class="w-full  md:col-span-2 px-4">
+    <div class="rounded-lg p-2 shadow">
+
+      <h2 class="text-xl font-semibold text-gray-900">Selecciona servicios extra <span class="text-sm text-gray-500">(opcional)</span></h2>
+      
+
+      <form method="post" action="{% url 'seleccionar_extras' salon.id %}" class="mt-4 space-y-2">
+        {% csrf_token %}
+
+        {% if extras_disponibles %}
+
+        <!-- === NUEVO GRID CON SCROLL E IMAGEN + TEXTO === -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-5 h-[520px] overflow-y-auto px-2 pt-2 py-2">
+
+          {% for extra in extras_disponibles %}
+          <label class="relative cursor-pointer block">
+
+            <!-- checkbox invisible -->
+            <input 
+              type="checkbox"
+              name="extras"
+              value="{{ extra.id }}"
+              data-nombre="{{ extra.nombre }}"
+              data-precio="{{ extra.precio }}"
+              class="checkbox-extra absolute inset-0 opacity-0 peer"
+            >
+
+            <div class="w-[200px] h-[300px] peer-checked:ring-2 peer-checked:ring-indigo-500 rounded-xl overflow-hidden">
+
+              <!-- imagen estilo ejemplo -->
+              <div class="relative h-[200px] sm:h-[240px]">
+                <img 
+                  src="{% if extra.imagen %}{{ extra.imagen.url }}{% else %}https://via.placeholder.com/400{% endif %}"
+                  class="absolute inset-0 h-full w-full object-cover"
+                >
+              </div>
+
+              <div class="bg-white pt-3">
+                <h3 class="text-sm text-gray-700 text-center">
+                  {{ extra.nombre }}
+                </h3>
+                <p class="mt-1.5 tracking-wide text-gray-900 text-center">
+                  ${{ extra.precio|intcomma }}
+                </p>
+              </div>
+
+            </div>
+
+          </label>
+          {% endfor %}
+
+        </div>
+
+        <div class="flex justify-end mt-6 gap-3">
+          <a href="{% url 'detalle_salon' salon.id %}" class="px-4 py-2 border rounded-md text-gray-700 hover:bg-gray-100">
+            Volver
+          </a>
+          <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
+            Continuar
+          </button>
+        </div>
+
+        {% else %}
+        <p class="text-gray-500">No hay servicios adicionales disponibles para este salón.</p>
+        {% endif %}
+      </form>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- === SCRIPT CALCULAR TOTAL === -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const extras = document.querySelectorAll(".checkbox-extra");
+    const lista = document.getElementById("listaExtras");
+    const totalTexto = document.getElementById("totalTexto");
+
+    const precioBase = {{ salon.precio }};
+    let total = precioBase;
+
+    function actualizar() {
+        lista.innerHTML = "";
+        total = precioBase;
+
+        extras.forEach(chk => {
+            if (chk.checked) {
+                const li = document.createElement("li");
+                li.textContent = `${chk.dataset.nombre} (+$${parseInt(chk.dataset.precio).toLocaleString()})`;
+                lista.appendChild(li);
+                total += parseInt(chk.dataset.precio);
+            }
+        });
+
+        totalTexto.textContent = total.toLocaleString();
+    }
+
+    extras.forEach(chk => chk.addEventListener("change", actualizar));
+    actualizar();
+});
+</script>
+
+
+
+{% endblock %}
+
+{% block footer %}{% endblock %}

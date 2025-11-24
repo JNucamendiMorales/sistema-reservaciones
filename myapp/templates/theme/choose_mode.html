@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Selecciona tu modo de acceso</title>
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Icono opcional -->
+  <link rel="icon" href="#" />
+</head>
+
+<body class="bg-white">
+
+<div class="min-h-screen bg-white flex items-center justify-center px-4 py-12">
+
+  <div class="max-w-4xl w-full">
+    <h1 class="text-3xl font-bold text-center text-gray-900 mb-10">
+      Selecciona tu modo de acceso
+    </h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+      <!-- === CARD ADMIN === -->
+      <a href="{% url 'admin' %}"
+         class="rounded-2xl border border-indigo-600 p-6 shadow-md ring-1 ring-indigo-600 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+
+        <div class="text-center">
+          <div class="flex justify-center mb-4">
+            <svg class="w-12 h-12 text-indigo-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                 fill="none" viewBox="0 0 24 24">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M14.079 6.839a3 3 0 0 0-4.255.1M13 20h1.083A3.916 3.916 0 0 0 18 16.083V9A6 6 0 1 0 6 9v7m7 4v-1a1 1 0 0 0-1-1h-1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1Zm-7-4v-6H5a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1Zm12-6h1a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-1v-6Z"/>
+            </svg>
+          </div>
+
+          <h2 class="text-xl font-semibold text-gray-900">Modo Administrador</h2>
+          <p class="mt-2 text-gray-700">
+            Acceso completo al panel, gestión de usuarios, reportes, salones y finanzas.
+          </p>
+        </div>
+
+        <ul class="mt-6 space-y-2 text-gray-700">
+          <li class="flex items-center gap-2">✔ Control total del sistema</li>
+          <li class="flex items-center gap-2">✔ Gestión de salones y reservaciones</li>
+          <li class="flex items-center gap-2">✔ Estadísticas completas</li>
+          <li class="flex items-center gap-2">✔ Administración de usuarios</li>
+        </ul>
+
+        <div class="mt-8">
+          <div class="rounded-full bg-indigo-600 text-white py-3 text-center font-medium hover:bg-indigo-700">
+            Entrar como Administrador
+          </div>
+        </div>
+      </a>
+
+      <!-- === CARD USER === -->
+      <a href="{% url 'inicio' %}"
+         class="rounded-2xl border border-gray-200 p-6 shadow-md hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+
+        <div class="text-center">
+          <div class="flex justify-center mb-4">
+            <svg class="w-12 h-12 text-indigo-600" aria-hidden="true"
+                 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <path stroke="currentColor" stroke-width="2"
+                    d="M7 17v1a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1a3 3 0 0 0-3-3h-4a3 3 0 0 0-3 3Zm8-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+            </svg>
+          </div>
+
+          <h2 class="text-xl font-semibold text-gray-900">Modo Usuario</h2>
+          <p class="mt-2 text-gray-700">
+            Reservaciones rápidas, historial, gestión de eventos y soporte simple.
+          </p>
+        </div>
+
+        <ul class="mt-6 space-y-2 text-gray-700">
+          <li class="flex items-center gap-2">✔ Reservar salones</li>
+          <li class="flex items-center gap-2">✔ Consultar tus reservas</li>
+          <li class="flex items-center gap-2">✔ Edición básica de perfil</li>
+        </ul>
+
+        <div class="mt-8">
+          <div class="rounded-full border border-indigo-600 text-indigo-600 py-3 text-center font-medium hover:ring-1 hover:ring-indigo-600">
+            Entrar como Usuario
+          </div>
+        </div>
+
+      </a>
+
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

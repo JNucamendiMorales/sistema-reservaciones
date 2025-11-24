@@ -16,12 +16,10 @@
 
 
 -- Dumping database structure for reservacionesdb
-DROP DATABASE IF EXISTS `reservacionesdb`;
 CREATE DATABASE IF NOT EXISTS `reservacionesdb` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci */;
 USE `reservacionesdb`;
 
 -- Dumping structure for table reservacionesdb.auth_group
-DROP TABLE IF EXISTS `auth_group`;
 CREATE TABLE IF NOT EXISTS `auth_group` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(150) NOT NULL,
@@ -30,10 +28,8 @@ CREATE TABLE IF NOT EXISTS `auth_group` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Dumping data for table reservacionesdb.auth_group: ~0 rows (approximately)
-DELETE FROM `auth_group`;
 
 -- Dumping structure for table reservacionesdb.auth_group_permissions
-DROP TABLE IF EXISTS `auth_group_permissions`;
 CREATE TABLE IF NOT EXISTS `auth_group_permissions` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `group_id` int(11) NOT NULL,
@@ -46,10 +42,8 @@ CREATE TABLE IF NOT EXISTS `auth_group_permissions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Dumping data for table reservacionesdb.auth_group_permissions: ~0 rows (approximately)
-DELETE FROM `auth_group_permissions`;
 
 -- Dumping structure for table reservacionesdb.auth_permission
-DROP TABLE IF EXISTS `auth_permission`;
 CREATE TABLE IF NOT EXISTS `auth_permission` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
@@ -58,10 +52,9 @@ CREATE TABLE IF NOT EXISTS `auth_permission` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `auth_permission_content_type_id_codename_01ab375a_uniq` (`content_type_id`,`codename`),
   CONSTRAINT `auth_permission_content_type_id_2f476e4b_fk_django_co` FOREIGN KEY (`content_type_id`) REFERENCES `django_content_type` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table reservacionesdb.auth_permission: ~32 rows (approximately)
-DELETE FROM `auth_permission`;
+-- Dumping data for table reservacionesdb.auth_permission: ~36 rows (approximately)
 INSERT INTO `auth_permission` (`id`, `name`, `content_type_id`, `codename`) VALUES
 	(1, 'Can add log entry', 1, 'add_logentry'),
 	(2, 'Can change log entry', 1, 'change_logentry'),
@@ -98,10 +91,13 @@ INSERT INTO `auth_permission` (`id`, `name`, `content_type_id`, `codename`) VALU
 	(33, 'Can add favorito', 9, 'add_favorito'),
 	(34, 'Can change favorito', 9, 'change_favorito'),
 	(35, 'Can delete favorito', 9, 'delete_favorito'),
-	(36, 'Can view favorito', 9, 'view_favorito');
+	(36, 'Can view favorito', 9, 'view_favorito'),
+	(37, 'Can add servicio extra', 10, 'add_servicioextra'),
+	(38, 'Can change servicio extra', 10, 'change_servicioextra'),
+	(39, 'Can delete servicio extra', 10, 'delete_servicioextra'),
+	(40, 'Can view servicio extra', 10, 'view_servicioextra');
 
 -- Dumping structure for table reservacionesdb.auth_user
-DROP TABLE IF EXISTS `auth_user`;
 CREATE TABLE IF NOT EXISTS `auth_user` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `password` varchar(128) NOT NULL,
@@ -118,13 +114,11 @@ CREATE TABLE IF NOT EXISTS `auth_user` (
   UNIQUE KEY `username` (`username`)
 ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table reservacionesdb.auth_user: ~1 rows (approximately)
-DELETE FROM `auth_user`;
+-- Dumping data for table reservacionesdb.auth_user: ~0 rows (approximately)
 INSERT INTO `auth_user` (`id`, `password`, `last_login`, `is_superuser`, `username`, `first_name`, `last_name`, `email`, `is_staff`, `is_active`, `date_joined`) VALUES
-	(12, 'pbkdf2_sha256$1000000$dSOJv6bDKdKxlND6CVXMqi$eol5saplhYZVlYfQOtYwZpmW5g+K0tzyUvH4jz6M5b0=', '2025-11-03 08:15:58.190885', 1, 'Nucalized', '', '', 'nucalized@gmail.com', 1, 1, '2025-11-03 08:15:50.948252');
+	(12, 'pbkdf2_sha256$1000000$dSOJv6bDKdKxlND6CVXMqi$eol5saplhYZVlYfQOtYwZpmW5g+K0tzyUvH4jz6M5b0=', '2025-11-19 23:04:00.606509', 1, 'Nucalized', '', '', 'nucalized@gmail.com', 1, 1, '2025-11-03 08:15:50.948252');
 
 -- Dumping structure for table reservacionesdb.auth_user_groups
-DROP TABLE IF EXISTS `auth_user_groups`;
 CREATE TABLE IF NOT EXISTS `auth_user_groups` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL,
@@ -137,10 +131,8 @@ CREATE TABLE IF NOT EXISTS `auth_user_groups` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Dumping data for table reservacionesdb.auth_user_groups: ~0 rows (approximately)
-DELETE FROM `auth_user_groups`;
 
 -- Dumping structure for table reservacionesdb.auth_user_user_permissions
-DROP TABLE IF EXISTS `auth_user_user_permissions`;
 CREATE TABLE IF NOT EXISTS `auth_user_user_permissions` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL,
@@ -153,10 +145,8 @@ CREATE TABLE IF NOT EXISTS `auth_user_user_permissions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Dumping data for table reservacionesdb.auth_user_user_permissions: ~0 rows (approximately)
-DELETE FROM `auth_user_user_permissions`;
 
 -- Dumping structure for table reservacionesdb.django_admin_log
-DROP TABLE IF EXISTS `django_admin_log`;
 CREATE TABLE IF NOT EXISTS `django_admin_log` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `action_time` datetime(6) NOT NULL,
@@ -173,23 +163,20 @@ CREATE TABLE IF NOT EXISTS `django_admin_log` (
   CONSTRAINT `django_admin_log_user_id_c564eba6_fk_auth_user_id` FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=185 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table reservacionesdb.django_admin_log: ~1 rows (approximately)
-DELETE FROM `django_admin_log`;
+-- Dumping data for table reservacionesdb.django_admin_log: ~0 rows (approximately)
 INSERT INTO `django_admin_log` (`id`, `action_time`, `object_id`, `object_repr`, `action_flag`, `change_message`, `content_type_id`, `user_id`) VALUES
 	(184, '2025-11-03 08:17:32.830094', '31', 'Espejos de Plata', 2, '[{"changed": {"fields": ["Descripcion"]}}]', 7, 12);
 
 -- Dumping structure for table reservacionesdb.django_content_type
-DROP TABLE IF EXISTS `django_content_type`;
 CREATE TABLE IF NOT EXISTS `django_content_type` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `app_label` varchar(100) NOT NULL,
   `model` varchar(100) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `django_content_type_app_label_model_76bd3d3b_uniq` (`app_label`,`model`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table reservacionesdb.django_content_type: ~8 rows (approximately)
-DELETE FROM `django_content_type`;
+-- Dumping data for table reservacionesdb.django_content_type: ~9 rows (approximately)
 INSERT INTO `django_content_type` (`id`, `app_label`, `model`) VALUES
 	(1, 'admin', 'logentry'),
 	(2, 'auth', 'permission'),
@@ -199,20 +186,19 @@ INSERT INTO `django_content_type` (`id`, `app_label`, `model`) VALUES
 	(6, 'sessions', 'session'),
 	(7, 'myapp', 'salon'),
 	(8, 'myapp', 'reservacion'),
-	(9, 'myapp', 'favorito');
+	(9, 'myapp', 'favorito'),
+	(10, 'myapp', 'servicioextra');
 
 -- Dumping structure for table reservacionesdb.django_migrations
-DROP TABLE IF EXISTS `django_migrations`;
 CREATE TABLE IF NOT EXISTS `django_migrations` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `app` varchar(255) NOT NULL,
   `name` varchar(255) NOT NULL,
   `applied` datetime(6) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table reservacionesdb.django_migrations: ~22 rows (approximately)
-DELETE FROM `django_migrations`;
+-- Dumping data for table reservacionesdb.django_migrations: ~31 rows (approximately)
 INSERT INTO `django_migrations` (`id`, `app`, `name`, `applied`) VALUES
 	(1, 'contenttypes', '0001_initial', '2025-08-01 20:15:46.730354'),
 	(2, 'auth', '0001_initial', '2025-08-01 20:15:46.877171'),
@@ -243,10 +229,12 @@ INSERT INTO `django_migrations` (`id`, `app`, `name`, `applied`) VALUES
 	(27, 'myapp', '0009_remove_reservacion_fecha_fin_and_more', '2025-08-10 00:00:41.668899'),
 	(28, 'myapp', '0010_reservacion_pagada_alter_reservacion_unique_together', '2025-08-10 18:51:20.340009'),
 	(29, 'myapp', '0011_reservacion_precio_total', '2025-08-11 05:54:14.373337'),
-	(30, 'myapp', '0012_favorito', '2025-08-12 06:40:39.373236');
+	(30, 'myapp', '0012_favorito', '2025-08-12 06:40:39.373236'),
+	(31, 'myapp', '0002_alter_servicioextra_precio', '2025-11-17 21:58:52.444872'),
+	(32, 'myapp', '0002_salon_created_at', '2025-11-18 04:27:57.673345'),
+	(33, 'myapp', '0003_servicioextra_imagen', '2025-11-19 23:18:05.063274');
 
 -- Dumping structure for table reservacionesdb.django_session
-DROP TABLE IF EXISTS `django_session`;
 CREATE TABLE IF NOT EXISTS `django_session` (
   `session_key` varchar(40) NOT NULL,
   `session_data` longtext NOT NULL,
@@ -255,20 +243,23 @@ CREATE TABLE IF NOT EXISTS `django_session` (
   KEY `django_session_expire_date_a5c62663` (`expire_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table reservacionesdb.django_session: ~8 rows (approximately)
-DELETE FROM `django_session`;
+-- Dumping data for table reservacionesdb.django_session: ~13 rows (approximately)
 INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALUES
+	('2cafz45tk5lhe3f1qi5dq9oewyxm3jf1', '.eJxVjDsOwyAQBe9CHSG-BlKm9xkQLLvBSYQlY1dR7h5bcpG0b2bem8W0rTVuHZc4FXZlUrHL75gTPLEdpDxSu88c5rYuU-aHwk_a-TgXfN1O9--gpl732hjUg0cVlLUETiQMAmTx5MllgUpRkVlpQ9K5YMOOhNFBJg0DEIjMPl_9tjgE:1vLR9a:yXmGMh63fnldb5syBECRrbaCDe2J9zN7RvWPKUoGYsQ', '2025-12-02 19:14:14.539124'),
+	('3m2407f89qhi60yxi9v0ued6g1ta5sjz', '.eJxVjDsOwyAQBe9CHSG-BlKm9xkQLLvBSYQlY1dR7h5bcpG0b2bem8W0rTVuHZc4FXZlUrHL75gTPLEdpDxSu88c5rYuU-aHwk_a-TgXfN1O9--gpl732hjUg0cVlLUETiQMAmTx5MllgUpRkVlpQ9K5YMOOhNFBJg0DEIjMPl_9tjgE:1vLFA2:sBj9ZA4csNNxB0znFdJ-3ix1DsuoQusOBacbctguIWM', '2025-12-02 06:25:54.336129'),
 	('9gmi0v8n7po76up23klvoqf3c0mg25vm', '.eJxVjDsOwyAQRO9CHSG-Npsyvc-AFhaCkwgkY1dR7h5bcpE0U8x7M2_mcVuL33pa_EzsyiS7_HYB4zPVA9AD673x2Oq6zIEfCj9p51Oj9Lqd7t9BwV72NWSnKGchHSRwStvBCKWjgSilypacRhMpjwZSMGoEm_aUJCwR0hA0-3wBy-E3hA:1vEhxU:kbZT46ukESPAASr37PBeH85LVhxdPf3-kKocey9Gvyg', '2025-11-14 05:45:56.070023'),
 	('c4yq0cenwuxdimz1i30zgdhyqohdrxuv', '.eJxVjDsOwyAQBe9CHSG-BlKm9xkQLLvBSYQlY1dR7h5bcpG0b2bem8W0rTVuHZc4FXZlUrHL75gTPLEdpDxSu88c5rYuU-aHwk_a-TgXfN1O9--gpl732hjUg0cVlLUETiQMAmTx5MllgUpRkVlpQ9K5YMOOhNFBJg0DEIjMPl_9tjgE:1vFpjK:Q4sdsmu3BptlmyUy61Qqw9Tf5Gh7Ms9tDlQY5G7dupk', '2025-11-17 08:15:58.192444'),
 	('c52ficisjogqx8n28kwe04qrhr5z16e7', '.eJxVjM1uwyAQBt-Fc4Qwf4Uee88zoDW72KQuRAafqr57sRpF6R535ptvFuDoazga7SEje2eKXV5_M8RPKifAG5Sl8lhL3_PMT4U_aOPXirR9PNx_gRXaOtZeGRWlVRq1o-TJu6QiKiu0FMkizgbdm_SKnPBGamcFKDNTkomUxUmOaK8dtpBygW0EJ22c4GLcQEgtHlR6DXDfcgSsp2HlU4gV81JDLstO7Q_fa1ngiybBfn4BaH5TmA:1um4Oq:PsuFNBepgtQHhqJQFcwzRG32rKHpUXWd9Aedev7PFoA', '2025-08-27 05:51:48.823098'),
 	('c7io88nm91fp8zeq07yq79zawy3iatli', '.eJxVjDEOAiEQRe9CbQjOAIKlvWcgwAyyaiBZdivj3XWTLbT9773_EiGuSw3r4DlMJM4CxeF3SzE_uG2A7rHdusy9LfOU5KbInQ557cTPy-7-HdQ46rf2aDCDRU3acfHsXcFMaJUGVSxRMuRO4JGd8ga0syqiSVygMFo6gnh_AM3KN1w:1umfhr:Zq3VbRwmRJqgQ6-MGQLIWd3N7kQO658i_m8y4NSJ6Wo', '2025-08-28 21:41:55.801304'),
+	('f45r7e93ec0h7dgespopm9vvz5sv62wy', '.eJxVjDsOwyAQBe9CHSG-BlKm9xkQLLvBSYQlY1dR7h5bcpG0b2bem8W0rTVuHZc4FXZlUrHL75gTPLEdpDxSu88c5rYuU-aHwk_a-TgXfN1O9--gpl732hjUg0cVlLUETiQMAmTx5MllgUpRkVlpQ9K5YMOOhNFBJg0DEIjMPl_9tjgE:1vL7PQ:0JvBMqKM_jITPixLHtLtQNbwVJELrsxJ3SeIGg22w0g', '2025-12-01 22:09:16.332434'),
 	('l7txregq4m9bv7eo9n87gvieokes9j4c', '.eJxVjDsOwyAQBe9CHSHAfFOm9xnQsqyDkwgkY1dR7h4huUjaNzPvzSIce4lHpy2umV2ZYpffLQE-qQ6QH1DvjWOr-7YmPhR-0s7nlul1O92_gwK9jFq5BUCjBSe1Q48Blwm8UZMjsAaEs5mSEl5Pkih4A0Gg1SQdCgkys88X8hU3-w:1ulxog:cJL1GQYBXCg4mkVKU_U-LXBa8XDRJOUXaWbeYvsq8eo', '2025-08-26 22:50:02.649280'),
+	('o1eumjjp1qhdwol6s74e45q6wcryiziu', '.eJxVjkEOgjAQRe_SNZJOoUBZuvcExpBpOxUUqaFgTAh3txgWup33__uzsAbnqW3mQGPTWVYzECz5PWo0dxo2Ym84XH1q_DCNnU63SLrTkJ68pf64Z_8ELYY2tvOcsqIioYSUzpQcSXEDtnKVKzUnIZwFLbLcQVkqqSLieaYAM1MYZ7iO0pGi74XNRI8nqxcWsPfD92uQCXNkWoxDggt5ADiAihV6TyMGVp8v6_oBkpNLrQ:1vLwLh:AYOHcrQtyxkda1Bjqqede07LOvdpYOtywuMYxahKHaY', '2025-12-04 04:32:49.145666'),
 	('slhxe1z4b4a86msyjw8qx5zs973j98si', '.eJxVjDsOwyAQBe9CHSHAfFOm9xnQsqyDkwgkY1dR7h4huUjaNzPvzSIce4lHpy2umV2ZYpffLQE-qQ6QH1DvjWOr-7YmPhR-0s7nlul1O92_gwK9jFq5BUCjBSe1Q48Blwm8UZMjsAaEs5mSEl5Pkih4A0Gg1SQdCgkys88X8hU3-w:1ukuhU:dBzCAeA0Oz3PmcK5HRrcp1Z-kfhM1hrhtvD2i9pxkYY', '2025-08-24 01:18:16.770703'),
+	('uix23skfibjmeatrwlibs591di8j4rlu', '.eJxVjssOgyAURP-FtSGAD8Rl9_2CpiEXuFT70AawaWL892Ljot3OmTmZhWiYU6_niEEPjnSEC1L8hgbsDceNuCuMl4naaUxhMHSr0J1Gepwc3g9790_QQ-zzuqqwbFoUStS1t5IBKma5a33rpWEohHfciLLyXEpVq4xYVSoOpW2st8xkacDse4FO-HiSbiER7tP4fS0Kgu8UIJLuJNh5XT_zo0cH:1vLcpN:-VEcskaEvJVmUafwfV-4jyIfRse2hy4smCJueoLa0-A', '2025-12-03 07:42:09.637475'),
 	('xzangyhl5z7jaos38cp5legxwyusq2v5', '.eJxVjDEOAiEQRe9CbQjOAIKlvWcgwAyyaiBZdivj3XWTLbT9773_EiGuSw3r4DlMJM4CxeF3SzE_uG2A7rHdusy9LfOU5KbInQ557cTPy-7-HdQ46rf2aDCDRU3acfHsXcFMaJUGVSxRMuRO4JGd8ga0syqiSVygMFo6gnh_AM3KN1w:1ulyeX:fCVBHtb8wPgrlLQpsNa7HVm9IJ1s4jIR5rdy2FwG_X8', '2025-08-26 23:43:37.913697'),
 	('zj73oydb85bc5u15qogpehlvzt3kb6wa', '.eJxVjM0OwiAQhN-FsyG7dKXg0bvP0CywSNVA0p-T8d1tkx70NMl838xbDbwuZVhnmYYxqYtCVKffMnB8St1JenC9Nx1bXaYx6F3RB531rSV5XQ_376DwXLZ1x5wQGNkgidkyY0_BnzP01prOU8rEmMFHdA4EAJiw85aciSQS1ecL-N03ew:1vFgQE:nYurmq0IN8Y6q_8aTiCKxKy9IlHOuL4LrSazHz-X1l0', '2025-11-16 22:19:38.091734');
 
 -- Dumping structure for table reservacionesdb.myapp_favorito
-DROP TABLE IF EXISTS `myapp_favorito`;
 CREATE TABLE IF NOT EXISTS `myapp_favorito` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `salon_id` bigint(20) NOT NULL,
@@ -281,10 +272,8 @@ CREATE TABLE IF NOT EXISTS `myapp_favorito` (
 ) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Dumping data for table reservacionesdb.myapp_favorito: ~0 rows (approximately)
-DELETE FROM `myapp_favorito`;
 
 -- Dumping structure for table reservacionesdb.myapp_reservacion
-DROP TABLE IF EXISTS `myapp_reservacion`;
 CREATE TABLE IF NOT EXISTS `myapp_reservacion` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `estado` varchar(20) NOT NULL,
@@ -298,15 +287,27 @@ CREATE TABLE IF NOT EXISTS `myapp_reservacion` (
   KEY `myapp_reservacion_usuario_id_cf61ee58_fk_auth_user_id` (`usuario_id`),
   CONSTRAINT `myapp_reservacion_salon_id_ed2a568c_fk_myapp_salon_id` FOREIGN KEY (`salon_id`) REFERENCES `myapp_salon` (`id`),
   CONSTRAINT `myapp_reservacion_usuario_id_cf61ee58_fk_auth_user_id` FOREIGN KEY (`usuario_id`) REFERENCES `auth_user` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=50 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=51 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table reservacionesdb.myapp_reservacion: ~1 rows (approximately)
-DELETE FROM `myapp_reservacion`;
+-- Dumping data for table reservacionesdb.myapp_reservacion: ~0 rows (approximately)
 INSERT INTO `myapp_reservacion` (`id`, `estado`, `usuario_id`, `salon_id`, `fecha_reserva`, `pagada`, `precio_total`) VALUES
-	(49, 'pendiente', 12, 11, '2025-11-12', 0, 11000.00);
+	(49, 'pendiente', 12, 11, '2025-11-12', 0, 11000.00),
+	(50, 'pendiente', 12, 3, '2025-11-18', 0, 27000.00);
+
+-- Dumping structure for table reservacionesdb.myapp_reservacion_servicios_extra
+CREATE TABLE IF NOT EXISTS `myapp_reservacion_servicios_extra` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `reservacion_id` bigint(20) NOT NULL,
+  `servicioextra_id` bigint(20) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_reservacion_servicio` (`reservacion_id`,`servicioextra_id`),
+  UNIQUE KEY `myapp_reservacion_servic_reservacion_id_servicioe_1b403761_uniq` (`reservacion_id`,`servicioextra_id`),
+  CONSTRAINT `myapp_reservacion_se_reservacion_id_0e16cdf9_fk_myapp_res` FOREIGN KEY (`reservacion_id`) REFERENCES `myapp_reservacion` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Dumping data for table reservacionesdb.myapp_reservacion_servicios_extra: ~0 rows (approximately)
 
 -- Dumping structure for table reservacionesdb.myapp_salon
-DROP TABLE IF EXISTS `myapp_salon`;
 CREATE TABLE IF NOT EXISTS `myapp_salon` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `nombre` varchar(100) NOT NULL,
@@ -318,42 +319,92 @@ CREATE TABLE IF NOT EXISTS `myapp_salon` (
   `calificacion` decimal(2,1) NOT NULL,
   `categoria` varchar(20) NOT NULL,
   `ciudad` varchar(100) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table reservacionesdb.myapp_salon: ~28 rows (approximately)
-DELETE FROM `myapp_salon`;
-INSERT INTO `myapp_salon` (`id`, `nombre`, `capacidad`, `descripcion`, `disponible`, `imagen`, `precio`, `calificacion`, `categoria`, `ciudad`) VALUES
-	(2, 'Salon XV años', 300, '**Salón XV Años**\r\nAmplio y elegante espacio con capacidad para 300 invitados, diseñado especialmente para celebrar quinceañeras con estilo y comodidad. Cuenta con pista de baile iluminada, escenario para presentaciones, decoración personalizable y área de banquetes equipada, ideal para crear una noche inolvidable.', 1, 'salones/salon_xv.jpg', 20000.00, 4.7, 'fiestas', 'CDMX'),
-	(3, 'Salón Torre Reforma', 70, 'El Salón Torre Reforma es un espacio moderno y elegante ideal para reuniones corporativas, talleres y eventos profesionales. Cuenta con una atmósfera tranquila y bien iluminada que favorece la concentración y la comunicación efectiva. Su diseño funcional permite una distribución versátil del mobiliario, adaptándose fácilmente a presentaciones, mesas de trabajo o sesiones interactivas. Ubicado en una zona accesible, ofrece todas las facilidades tecnológicas necesarias para asegurar el éxito de tus encuentros de negocio.', 1, 'salones/salon_reuniones1-300x200.jpg', 27000.00, 4.2, 'reuniones', 'CDMX'),
-	(4, 'Salon expo', 420, 'El Salón Expo es un amplio y versátil espacio diseñado para exposiciones, ferias y eventos de gran escala. Su estructura abierta y bien iluminada permite exhibir productos, instalaciones artísticas o stands de manera organizada y atractiva. Equipado con tecnología de punta y fácil acceso, facilita la logística de montaje y la movilidad de los asistentes. Ideal para eventos que requieren amplitud, visibilidad y una experiencia cómoda para grandes públicos.', 1, 'salones/salon_expo-300x200.jpg', 28700.00, 4.6, 'expos', 'CDMX'),
-	(5, 'Luz de Luna', 300, 'El Salón Luz de Luna ofrece un ambiente elegante y festivo, perfecto para celebraciones inolvidables como bodas, quinceañeras y eventos sociales. Su iluminación cálida y su decoración sofisticada crean un entorno acogedor que realza cada detalle de la celebración. Con un espacio amplio y versátil, permite acomodar cómodamente a todos los invitados, además de ofrecer áreas ideales para pista de baile, montaje de mesas y actividades especiales.', 1, 'salones/salon_boda1-300x200.jpg', 40000.00, 4.8, 'fiestas', 'Queretaro'),
-	(6, 'Jardines del Sol', 250, 'El Salón Jardines del Sol combina elegancia y naturaleza, ofreciendo un entorno ideal para celebraciones íntimas y especiales. Sus amplios espacios y áreas verdes proporcionan una atmósfera fresca y relajante, perfecta para bodas, cumpleaños y eventos sociales. La versatilidad del lugar permite organizar cómodamente la pista de baile, mesas de invitados y zonas de entretenimiento, asegurando una experiencia memorable para todos los asistentes.', 1, 'salones/salon_jardin-300x200.jpg', 31000.00, 4.8, 'fiestas', 'CDMX'),
-	(7, 'Palacio Esmeralda', 300, 'El Salón Palacio Esmeralda es un espacio sofisticado y majestuoso, ideal para celebraciones elegantes como bodas, quinceañeras y eventos sociales destacados. Su decoración refinada y su iluminación cuidadosamente diseñada crean un ambiente encantador y acogedor. Con amplias áreas para pista de baile, montaje de mesas y actividades especiales, garantiza que cada celebración sea única e inolvidable para todos los invitados.', 1, 'salones/salon_boda_palacio-300x200.jpg', 50000.00, 4.9, 'fiestas', 'Puebla'),
-	(8, 'Cristal Real', 300, 'El Salón Cristal Real combina sofisticación y modernidad, ofreciendo un espacio ideal para celebraciones memorables como bodas, quinceañeras y eventos sociales. Su iluminación brillante y elegante resalta cada detalle de la decoración, mientras que su distribución amplia permite organizar cómodamente la pista de baile, mesas y áreas de entretenimiento. Perfecto para quienes buscan un ambiente elegante y festivo que deje una impresión duradera en sus invitados.', 1, 'salones/salon_cristal_real.jpg', 23000.00, 4.7, 'fiestas', 'CDMX'),
-	(9, 'Flor de Mayo', 350, 'El Salón Flor de Mayo es un espacio amplio y elegante, diseñado para celebraciones vibrantes y memorables como bodas, quinceañeras y eventos sociales. Su ambiente cálido y acogedor, junto con una iluminación cuidadosamente pensada, realza la decoración y crea un entorno festivo. La distribución versátil permite organizar cómodamente la pista de baile, mesas y zonas de entretenimiento, garantizando una experiencia inolvidable para todos los invitados.', 1, 'salones/salon_flor_mayo.jpg', 33000.00, 4.6, 'fiestas', 'Monterrey'),
-	(10, 'Salón Chapultepec', 100, 'El Salón Chapultepec es un espacio funcional y acogedor, ideal para reuniones corporativas, talleres y juntas ejecutivas. Su ambiente tranquilo y bien iluminado favorece la concentración y la comunicación efectiva. Con un diseño versátil, permite organizar cómodamente mesas de trabajo, presentaciones y sesiones interactivas, ofreciendo todas las facilidades necesarias para el éxito de cualquier encuentro profesional.', 1, 'salones/salonChapultepec.jpg', 15000.00, 4.5, 'reuniones', 'CDMX'),
-	(11, 'Salón Torre Latino', 60, 'El Salón Torre Latino es un espacio íntimo y profesional, perfecto para reuniones pequeñas, juntas ejecutivas y talleres especializados. Su ambiente moderno y bien iluminado facilita la concentración y la colaboración entre los participantes. Con una distribución flexible, permite acomodar cómodamente mesas de trabajo, presentaciones o sesiones interactivas, garantizando un entorno eficiente y agradable para cualquier encuentro corporativo.', 1, 'salones/salonTorreLatino.png', 11000.00, 4.3, 'reuniones', 'CDMX'),
-	(12, 'Salón Alameda', 130, 'El Salón Alameda es un espacio moderno y versátil, ideal para reuniones corporativas, conferencias y talleres. Su ambiente luminoso y tranquilo favorece la concentración y la interacción entre los participantes. Con una distribución adaptable, permite organizar cómodamente mesas de trabajo, presentaciones o sesiones colaborativas, asegurando que cada encuentro profesional se desarrolle de manera eficiente y cómoda.', 1, 'salones/salonalameda.png', 13000.00, 4.4, 'reuniones', 'Puebla'),
-	(13, 'Salón Insurgentes', 30, 'El Salón Insurgentes es un espacio acogedor y funcional, ideal para reuniones pequeñas, juntas ejecutivas o talleres especializados. Su ambiente tranquilo y bien iluminado permite una comunicación fluida y concentración total. Con un diseño versátil, ofrece la posibilidad de organizar mesas de trabajo, presentaciones o sesiones interactivas de manera cómoda y eficiente, asegurando un entorno profesional y agradable para todos los asistentes.', 1, 'salones/salonInsurgentes.png', 17000.00, 4.8, 'reuniones', 'Quintana Roo'),
-	(14, 'Salón Ciudadela', 100, 'El Salón Ciudadela es un espacio moderno y funcional, perfecto para reuniones corporativas, conferencias y talleres. Su ambiente bien iluminado y tranquilo favorece la concentración y la interacción entre los asistentes. Con una distribución flexible, permite organizar cómodamente mesas de trabajo, presentaciones o sesiones colaborativas, garantizando un entorno profesional y eficiente para todo tipo de encuentros de negocio.', 1, 'salones/salonCiudadela.jpeg', 12000.00, 4.4, 'reuniones', 'CDMX'),
-	(15, 'Salón Coyoacán', 220, 'El Salón Coyoacán es un amplio y versátil espacio diseñado para reuniones corporativas, conferencias y seminarios de gran tamaño. Su ambiente moderno y bien iluminado facilita la concentración y la comunicación efectiva entre los participantes. La disposición flexible del mobiliario permite organizar cómodamente presentaciones, mesas de trabajo y sesiones interactivas, asegurando un entorno profesional y eficiente para eventos empresariales de cualquier magnitud.', 1, 'salones/salonCoyoacan.jpg', 16000.00, 4.8, 'reuniones', 'CDMX'),
-	(16, 'Salón Santa Fe', 20, 'El Salón Santa Fe es un espacio íntimo y acogedor, ideal para reuniones pequeñas, juntas ejecutivas o sesiones de trabajo concentradas. Su ambiente tranquilo y bien iluminado facilita la comunicación efectiva y la colaboración entre los participantes. Con un diseño versátil, permite acomodar cómodamente mesas de trabajo o presentaciones, ofreciendo un entorno profesional y cómodo para encuentros corporativos reducidos.', 1, 'salones/salonSantafe.jpeg', 10000.00, 4.9, 'reuniones', 'CDMX'),
-	(17, 'Salón San Ángel', 100, 'El Salón San Ángel es un espacio elegante y funcional, ideal para reuniones corporativas, talleres y conferencias. Su ambiente tranquilo y bien iluminado favorece la concentración y la interacción efectiva entre los participantes. Con una distribución versátil, permite organizar cómodamente mesas de trabajo, presentaciones y sesiones interactivas, garantizando un entorno profesional y eficiente para cualquier evento empresarial.', 1, 'salones/salonSanAngel.jpeg', 20000.00, 4.3, 'reuniones', 'Campeche'),
-	(18, 'Salón Zócalo', 100, 'El Salón Zócalo es un espacio moderno y versátil, ideal para reuniones corporativas, talleres y conferencias. Su ambiente bien iluminado y tranquilo favorece la concentración y la comunicación entre los asistentes. Con una distribución flexible, permite organizar cómodamente mesas de trabajo, presentaciones y sesiones colaborativas, asegurando un entorno profesional y eficiente para cualquier encuentro empresarial.', 1, 'salones/salonZocalo.jpeg', 22000.00, 4.3, 'reuniones', 'Baja California Sur'),
-	(19, 'Salón Áurea', 150, 'El Salón Áurea es un espacio moderno y versátil, perfecto para exposiciones, ferias y presentaciones de mediana escala. Su diseño abierto y bien iluminado permite exhibir productos, obras o stands de manera organizada y atractiva. Equipado con facilidades tecnológicas y buena accesibilidad, garantiza que tanto expositores como visitantes disfruten de un evento cómodo y profesional, ideal para mostrar proyectos con estilo y eficiencia.', 1, 'salones/salonAurea.jpeg', 23000.00, 4.9, 'expos', 'Guadalajara'),
-	(20, 'Salón Estelar', 200, 'El Salón Estelar es un espacio amplio y moderno, diseñado para exposiciones, ferias y eventos de mediano a gran tamaño. Su estructura abierta y bien iluminada permite organizar stands, exhibiciones o presentaciones de manera atractiva y funcional. Con facilidades tecnológicas y una distribución versátil, garantiza comodidad y fluidez tanto para expositores como para visitantes, asegurando una experiencia profesional y eficiente en cada evento.', 1, 'salones/salonEstelar_tOK2Cf1.jpeg', 18000.00, 4.3, 'expos', 'Chihuahua'),
-	(21, 'Salón Horizonte', 200, 'El Salón Horizonte es un espacio amplio y versátil, ideal para exposiciones, ferias y presentaciones de mediana escala. Su diseño moderno y bien iluminado permite exhibir productos, obras o stands de manera organizada y atractiva. Equipado con facilidades tecnológicas y con buena accesibilidad, proporciona un entorno cómodo y profesional, asegurando que tanto expositores como visitantes disfruten de un evento eficiente y exitoso.', 1, 'salones/salonHorizonte.jpeg', 20000.00, 4.5, 'expos', 'CDMX'),
-	(22, 'Salón Galería Central', 10000, 'El Salón Galería Central es un espacio imponente y versátil, diseñado para exposiciones, ferias y eventos de gran escala. Su amplia estructura abierta y su iluminación estratégica permiten organizar stands, exhibiciones y presentaciones de manera funcional y atractiva. Equipado con tecnología avanzada y fácil acceso, garantiza comodidad y fluidez para expositores y visitantes, ofreciendo un entorno profesional ideal para grandes eventos y experiencias memorables.', 1, 'salones/salonGaleriaCentral.jpeg', 30000.00, 4.9, 'expos', 'Guadalajara'),
-	(23, 'Salón Óptima', 200, 'El Salón Óptima es un espacio moderno y funcional, ideal para exposiciones, ferias y presentaciones de mediana escala. Su diseño abierto y bien iluminado permite exhibir productos, obras o stands de manera organizada y atractiva. Con facilidades tecnológicas y una distribución versátil, asegura comodidad y eficiencia para expositores y visitantes, ofreciendo un entorno profesional para eventos exitosos y memorables.', 1, 'salones/salonOptima.jpeg', 17000.00, 4.3, 'expos', 'CDMX'),
-	(24, 'Salón Prisma', 200, 'El Salón Prisma es un espacio amplio y moderno, ideal para exposiciones, ferias y presentaciones de mediana escala. Su iluminación cuidadosamente diseñada y su distribución abierta permiten exhibir productos, obras o stands de manera atractiva y funcional. Equipado con facilidades tecnológicas y fácil accesibilidad, garantiza comodidad y eficiencia tanto para expositores como para visitantes, creando un entorno profesional para eventos exitosos y memorables.', 1, 'salones/salonPrisma.jpeg', 19000.00, 4.5, 'expos', 'Quintana Roo'),
-	(25, 'Salón Nexus', 500, 'El Salón Nexus es un espacio amplio y moderno, diseñado para exposiciones, ferias y eventos de gran escala. Su estructura abierta y bien iluminada permite organizar stands, exhibiciones y presentaciones de manera funcional y atractiva. Equipado con tecnología avanzada y con excelente accesibilidad, garantiza comodidad y fluidez para expositores y visitantes, proporcionando un entorno profesional ideal para grandes eventos y experiencias memorables.', 1, 'salones/salonNexus.jpeg', 29999.00, 4.6, 'expos', 'CDMX'),
-	(26, 'Salón Innovación', 300, 'El Salón Innovación es un espacio moderno y versátil, ideal para exposiciones, ferias y presentaciones de mediana a gran escala. Su diseño abierto y bien iluminado permite organizar stands, exhibiciones y demostraciones de manera atractiva y funcional. Con facilidades tecnológicas y fácil accesibilidad, garantiza comodidad y eficiencia para expositores y visitantes, asegurando un entorno profesional que potencia el éxito de cada evento.', 1, 'salones/salonInovacion.jpeg', 31000.00, 4.5, 'expos', 'Puebla'),
-	(27, 'Salón Vértice', 330, 'El Salón Vértice es un espacio amplio y moderno, perfecto para exposiciones, ferias y presentaciones de mediana a gran escala. Su iluminación estratégica y diseño abierto permiten organizar stands, exhibiciones y demostraciones de manera ordenada y atractiva. Equipado con facilidades tecnológicas y buena accesibilidad, ofrece comodidad y eficiencia tanto para expositores como para visitantes, creando un entorno profesional ideal para eventos exitosos y memorables.', 1, 'salones/SalonVertice.jpeg', 15000.00, 4.5, 'expos', 'CDMX'),
-	(28, 'Salón Cúpula', 1000, 'El Salón Cúpula es un espacio imponente y versátil, diseñado para exposiciones, ferias y eventos de gran magnitud. Su estructura amplia y bien iluminada permite organizar stands, exhibiciones y presentaciones de manera funcional y atractiva. Equipado con tecnología avanzada y fácil acceso, garantiza comodidad y fluidez para expositores y visitantes, ofreciendo un entorno profesional ideal para grandes eventos y experiencias memorables.', 1, 'salones/salonCupula.jpeg', 40000.00, 4.4, 'expos', 'CDMX'),
-	(29, 'Salón Encanto', 300, 'El Salón Encanto es un espacio elegante y acogedor, perfecto para celebraciones memorables como bodas, quinceañeras y eventos sociales. Su iluminación cálida y su decoración sofisticada crean un ambiente festivo y armonioso. Con áreas amplias para pista de baile, montaje de mesas y zonas de entretenimiento, garantiza una experiencia cómoda y encantadora para todos los invitados, haciendo de cada celebración un evento inolvidable.', 1, 'salones/salonEncanto_sXTf8cp.jpeg', 32000.00, 4.9, 'fiestas', 'Guadalajara'),
-	(30, 'Aurora Dorada', 500, 'El Salón Aurora Dorada es un espacio majestuoso y elegante, ideal para grandes celebraciones como bodas, quinceañeras y eventos sociales destacados. Su iluminación sofisticada y su decoración refinada crean un ambiente deslumbrante que realza cada detalle de la ocasión. Con amplias áreas para pista de baile, montaje de mesas y actividades especiales, ofrece comodidad y versatilidad, asegurando que cada evento sea espectacular e inolvidable para todos los invitados.', 1, 'salones/salonAuroraDorada_MQ8PZg5.jpeg', 40000.00, 4.5, 'fiestas', 'Queretaro'),
-	(31, 'Espejos de Plata', 300, 'El Salón Espejos de Plata ofrece un ambiente elegante y sofisticado, ideal para celebraciones como bodas, quinceañeras y eventos sociales. Sus detalles reflectantes y su iluminación cuidadosamente diseñada crean un espacio brillante y acogedor. Con áreas amplias para pista de baile, montaje de mesas y zonas de entretenimiento, garantiza una experiencia memorable y confortable para todos los invitados, convirtiendo cada celebración en un evento especial e inolvidable .', 1, 'salones/salonEspejosDePlata.jpeg', 50000.00, 4.5, 'fiestas', 'Nuevo León');
+-- Dumping data for table reservacionesdb.myapp_salon: ~30 rows (approximately)
+INSERT INTO `myapp_salon` (`id`, `nombre`, `capacidad`, `descripcion`, `disponible`, `imagen`, `precio`, `calificacion`, `categoria`, `ciudad`, `created_at`) VALUES
+	(2, 'Salon XV años', 300, 'El Salón XV Años es amplio y elegante, ideal para quinceañeras, con pista de baile, escenario, área de banquetes y decoración personalizable para una celebración inolvidable.', 0, 'salones/salon_xv.jpg', 20000.00, 4.7, 'fiestas', 'CDMX', '2025-11-18 04:27:57.650741'),
+	(3, 'Salón Torre Reforma', 70, 'El Salón Torre Reforma es moderno y elegante, ideal para reuniones corporativas y talleres, con iluminación adecuada, distribución versátil y tecnología para garantizar encuentros profesionales exitosos.', 0, 'salones/salon_reuniones1-300x200.jpg', 27000.00, 4.2, 'reuniones', 'CDMX', '2025-11-18 04:27:57.650741'),
+	(4, 'Salon expo', 420, 'El Salón Expo es amplio y versátil, perfecto para ferias y exposiciones, con iluminación, tecnología y espacios organizados que facilitan la movilidad y comodidad de los asistentes.', 0, 'salones/salon_expo-300x200.jpg', 28700.00, 4.6, 'expos', 'CDMX', '2025-11-18 04:27:57.650741'),
+	(5, 'Luz de Luna', 300, 'El Salón Luz de Luna ofrece un ambiente elegante y acogedor para bodas, quinceañeras y eventos, con espacios amplios, iluminación cálida y áreas para pista de baile y mesas.', 0, 'salones/salon_boda1-300x200.jpg', 40000.00, 4.8, 'fiestas', 'Queretaro', '2025-11-18 04:27:57.650741'),
+	(6, 'Jardines del Sol', 250, 'El Salón Jardines del Sol combina elegancia y naturaleza, con espacios amplios y áreas verdes, ideal para bodas y eventos, incluyendo pista de baile, mesas y zonas de entretenimiento.', 0, 'salones/salon_jardin-300x200.jpg', 31000.00, 4.8, 'fiestas', 'CDMX', '2025-11-18 04:27:57.650741'),
+	(7, 'Palacio Esmeralda', 300, 'El Salón Palacio Esmeralda es sofisticado y elegante, ideal para bodas y eventos, con iluminación cuidada y amplias áreas para pista de baile, mesas y actividades especiales.', 0, 'salones/salon_boda_palacio-300x200.jpg', 50000.00, 4.9, 'fiestas', 'Puebla', '2025-11-18 04:27:57.650741'),
+	(8, 'Cristal Real', 300, 'El Salón Cristal Real combina modernidad y elegancia, ideal para bodas y eventos, con iluminación destacada y amplias áreas para pista de baile, mesas y entretenimiento.', 0, 'salones/salon_cristal_real.jpg', 23000.00, 4.7, 'fiestas', 'CDMX', '2025-11-18 04:27:57.650741'),
+	(9, 'Flor de Mayo', 350, 'El Salón Flor de Mayo es amplio y elegante, ideal para bodas y eventos, con iluminación cálida y áreas cómodas para pista de baile, mesas y entretenimiento.', 0, 'salones/salon_flor_mayo.jpg', 33000.00, 4.6, 'fiestas', 'Monterrey', '2025-11-18 04:27:57.650741'),
+	(10, 'Salón Chapultepec', 100, 'El Salón Chapultepec es funcional y acogedor, ideal para reuniones y talleres, con iluminación adecuada y espacios versátiles para mesas, presentaciones y sesiones interactivas.', 0, 'salones/salonChapultepec.jpg', 15000.00, 4.5, 'reuniones', 'CDMX', '2025-11-18 04:27:57.650741'),
+	(11, 'Salón Torre Latino', 60, 'El Salón Torre Latino es íntimo y profesional, ideal para reuniones y talleres, con ambiente moderno, buena iluminación y distribución flexible para mesas, presentaciones y sesiones interactivas.', 0, 'salones/salonTorreLatino.png', 11000.00, 4.3, 'reuniones', 'CDMX', '2025-11-18 04:27:57.650741'),
+	(12, 'Salón Alameda', 130, 'El Salón Alameda es moderno y versátil, ideal para reuniones, conferencias y talleres, con buena iluminación y distribución adaptable que facilita mesas, presentaciones y sesiones colaborativas.', 0, 'salones/salonalameda.png', 13000.00, 4.4, 'reuniones', 'Puebla', '2025-11-18 04:27:57.650741'),
+	(13, 'Salón Insurgentes', 30, 'El Salón Insurgentes es acogedor y funcional, ideal para reuniones y talleres, con buena iluminación y distribución versátil que facilita mesas, presentaciones y sesiones interactivas.', 0, 'salones/salonInsurgentes.png', 17000.00, 4.8, 'reuniones', 'Quintana Roo', '2025-11-18 04:27:57.650741'),
+	(14, 'Salón Ciudadela', 100, 'El Salón Ciudadela es moderno y funcional, ideal para reuniones y talleres, con buena iluminación y distribución flexible que facilita mesas, presentaciones y sesiones colaborativas.', 0, 'salones/salonCiudadela.jpeg', 12000.00, 4.4, 'reuniones', 'CDMX', '2025-11-18 04:27:57.650741'),
+	(15, 'Salón Coyoacán', 220, 'El Salón Coyoacán es amplio y versátil, ideal para reuniones, conferencias y seminarios, con buena iluminación y disposición flexible que facilita presentaciones y sesiones interactivas.', 0, 'salones/salonCoyoacan.jpg', 16000.00, 4.8, 'reuniones', 'CDMX', '2025-11-18 04:27:57.650741'),
+	(16, 'Salón Santa Fe', 20, 'El Salón Santa Fe es íntimo y acogedor, perfecto para reuniones pequeñas o ejecutivas, con buena iluminación y distribución flexible que facilita trabajo y presentaciones efectivas.', 0, 'salones/salonSantafe.jpeg', 10000.00, 4.9, 'reuniones', 'CDMX', '2025-11-18 04:27:57.650741'),
+	(17, 'Salón San Ángel', 100, 'El Salón San Ángel es elegante y funcional, ideal para reuniones, talleres o conferencias, con buena iluminación y distribución versátil que facilita concentración y colaboración efectiva.', 0, 'salones/salonSanAngel.jpeg', 20000.00, 4.3, 'reuniones', 'Campeche', '2025-11-18 04:27:57.650741'),
+	(18, 'Salón Zócalo', 100, 'El Salón Zócalo es moderno y versátil, ideal para reuniones, talleres y conferencias, con buena iluminación y distribución flexible que facilita concentración y colaboración profesional.', 0, 'salones/salonZocalo.jpeg', 22000.00, 4.3, 'reuniones', 'Baja California Sur', '2025-11-18 04:27:57.650741'),
+	(19, 'Salón Áurea', 150, 'El Salón Áurea es moderno y versátil, ideal para exposiciones y ferias, con diseño iluminado y abierto que facilita exhibiciones organizadas y experiencias cómodas y profesionales.', 0, 'salones/salonAurea.jpeg', 23000.00, 4.9, 'expos', 'Guadalajara', '2025-11-18 04:27:57.650741'),
+	(20, 'Salón Estelar', 200, 'El Salón Estelar es amplio y moderno, ideal para exposiciones y ferias, con diseño abierto, buena iluminación y tecnología que garantiza eventos cómodos, funcionales y profesionales.', 0, 'salones/salonEstelar_tOK2Cf1.jpeg', 18000.00, 4.3, 'expos', 'Chihuahua', '2025-11-18 04:27:57.650741'),
+	(21, 'Salón Horizonte', 200, 'El Salón Horizonte es amplio y moderno, ideal para exposiciones y ferias, con buena iluminación, tecnología y accesibilidad, garantizando un evento cómodo, eficiente y profesional para todos.', 0, 'salones/salonHorizonte.jpeg', 20000.00, 4.5, 'expos', 'CDMX', '2025-11-18 04:27:57.650741'),
+	(22, 'Salón Galería Central', 10000, 'El Salón Galería Central es amplio y versátil, ideal para exposiciones y ferias, con buena iluminación, tecnología avanzada y accesibilidad, asegurando comodidad y un entorno profesional para grandes eventos.', 0, 'salones/salonGaleriaCentral.jpeg', 30000.00, 4.9, 'expos', 'Guadalajara', '2025-11-18 04:27:57.650741'),
+	(23, 'Salón Óptima', 200, 'El Salón Óptima es moderno y funcional, ideal para exposiciones y ferias, con buena iluminación, tecnología y distribución versátil, ofreciendo comodidad y un entorno profesional para eventos exitosos.', 0, 'salones/salonOptima.jpeg', 17000.00, 4.3, 'expos', 'CDMX', '2025-11-18 04:27:57.650741'),
+	(24, 'Salón Prisma', 200, 'El Salón Prisma es amplio y moderno, perfecto para exposiciones y ferias, con buena iluminación, tecnología y distribución abierta, ofreciendo comodidad y un entorno profesional para eventos exitosos.', 0, 'salones/salonPrisma.jpeg', 19000.00, 4.5, 'expos', 'Quintana Roo', '2025-11-18 04:27:57.650741'),
+	(25, 'Salón Nexus', 500, 'El Salón Nexus es amplio y moderno, ideal para exposiciones y ferias, con buena iluminación, tecnología avanzada y accesibilidad, ofreciendo comodidad y un entorno profesional para grandes eventos.', 0, 'salones/salonNexus.jpeg', 29999.00, 4.6, 'expos', 'CDMX', '2025-11-18 04:27:57.650741'),
+	(26, 'Salón Innovación', 300, 'El Salón Innovación es moderno y versátil, ideal para exposiciones y ferias, con buena iluminación, tecnología accesible y cómoda, ofreciendo un entorno profesional y eficiente para cada evento.', 0, 'salones/salonInovacion.jpeg', 31000.00, 4.5, 'expos', 'Puebla', '2025-11-18 04:27:57.650741'),
+	(27, 'Salón Vértice', 330, 'El Salón Vértice es moderno y amplio, ideal para exposiciones y ferias, con buena iluminación, tecnología y espacios organizados que ofrecen comodidad y eficiencia para todos los participantes.', 0, 'salones/SalonVertice.jpeg', 15000.00, 4.5, 'expos', 'CDMX', '2025-11-18 04:27:57.650741'),
+	(28, 'Salón Cúpula', 1000, 'El Salón Cúpula es amplio y versátil, ideal para exposiciones y ferias, con buena iluminación, tecnología avanzada y espacios funcionales que aseguran comodidad y fluidez.', 0, 'salones/salonCupula.jpeg', 40000.00, 4.4, 'expos', 'CDMX', '2025-11-18 04:27:57.650741'),
+	(29, 'Salón Encanto', 300, 'El Salón Encanto es elegante y acogedor, ideal para bodas y eventos sociales, con áreas para baile, mesas y entretenimiento, garantizando una celebración cómoda y memorable.', 0, 'salones/salonEncanto_sXTf8cp.jpeg', 32000.00, 4.9, 'fiestas', 'Guadalajara', '2025-11-18 04:27:57.650741'),
+	(30, 'Aurora Dorada', 500, 'El Salón Aurora Dorada es elegante y majestuoso, ideal para bodas y grandes celebraciones, con amplias áreas para baile, mesas y actividades, garantizando comodidad y un evento inolvidable.', 0, 'salones/salonAuroraDorada_MQ8PZg5.jpeg', 40000.00, 4.5, 'fiestas', 'Queretaro', '2025-11-18 04:27:57.650741'),
+	(31, 'Espejos de Plata', 300, 'El Salón Espejos de Plata ofrece un ambiente elegante y brillante, ideal para bodas y eventos sociales, con amplias áreas para baile, mesas y entretenimiento.', 0, 'salones/salonEspejosDePlata.jpeg', 50000.00, 4.5, 'fiestas', 'Nuevo León', '2025-11-18 04:27:57.650741');
+
+-- Dumping structure for table reservacionesdb.myapp_salon_servicios_extras
+CREATE TABLE IF NOT EXISTS `myapp_salon_servicios_extras` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `salon_id` bigint(20) NOT NULL,
+  `servicioextra_id` bigint(20) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `myapp_salon_servicios_ex_salon_id_servicioextra_i_7ff53323_uniq` (`salon_id`,`servicioextra_id`),
+  CONSTRAINT `myapp_salon_servicios_extras_salon_id_553a6b7b_fk_myapp_salon_id` FOREIGN KEY (`salon_id`) REFERENCES `myapp_salon` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Dumping data for table reservacionesdb.myapp_salon_servicios_extras: ~0 rows (approximately)
+
+-- Dumping structure for table reservacionesdb.myapp_servicioextra
+CREATE TABLE IF NOT EXISTS `myapp_servicioextra` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `nombre` varchar(100) NOT NULL,
+  `precio` decimal(10,2) NOT NULL,
+  `tipo_salon` varchar(20) NOT NULL,
+  `imagen` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Dumping data for table reservacionesdb.myapp_servicioextra: ~25 rows (approximately)
+INSERT INTO `myapp_servicioextra` (`id`, `nombre`, `precio`, `tipo_salon`, `imagen`) VALUES
+	(1, 'Equipo de sonido', 0.00, 'reuniones', NULL),
+	(2, 'Proyector y pantalla', 0.00, 'reuniones', NULL),
+	(3, 'Micrófonos', 0.00, 'reuniones', NULL),
+	(4, 'Mesas adicionales', 0.00, 'reuniones', NULL),
+	(5, 'Café y snacks', 0.00, 'reuniones', NULL),
+	(6, 'Servicio de agua', 0.00, 'reuniones', NULL),
+	(7, 'Rotafolios / pizarras', 0.00, 'reuniones', NULL),
+	(8, 'Stands modulares o personalizados', 0.00, 'expos', NULL),
+	(9, 'Mesas y sillas adicionales para expositores', 0.00, 'expos', NULL),
+	(10, 'Pantallas LED / proyectores para presentaciones', 0.00, 'expos', NULL),
+	(11, 'Sistema de sonido para anuncios y charlas', 0.00, 'expos', NULL),
+	(12, 'Catering para expositores y asistentes', 0.00, 'expos', NULL),
+	(13, 'Banquete / catering', 0.00, 'fiestas', NULL),
+	(14, 'Decoración temática', 0.00, 'fiestas', NULL),
+	(15, 'Música / DJ', 0.00, 'fiestas', NULL),
+	(16, 'Fotografía y video', 0.00, 'fiestas', NULL),
+	(17, 'Meseros', 0.00, 'fiestas', NULL),
+	(18, 'Luces y ambientación', 0.00, 'fiestas', NULL),
+	(19, 'Pastel y repostería', 0.00, 'fiestas', NULL),
+	(20, 'Barra libre o bebidas', 0.00, 'fiestas', NULL),
+	(21, 'Inflables', 0.00, 'fiestas', NULL),
+	(22, 'Equipo de sonido', 5000.00, 'reuniones', 'servicios/equipo_sonido_uEf4iIS.png'),
+	(23, 'awefwefw', 12312312.00, 'reuniones', ''),
+	(24, 'Espejos de Plata', 42343242.00, 'reuniones', ''),
+	(25, 'mamamam', 1322222.00, 'reuniones', '');
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

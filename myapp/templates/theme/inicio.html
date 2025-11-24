@@ -2,48 +2,128 @@
 {% load humanize static %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto px-4 py-8">
+<div class="bg-gray-50 min-h-screen">
 
-  <!-- Tendencia -->
-  <h2 class="text-2xl font-bold mb-4">Tendencia</h2>
-  <div class="flex flex-wrap gap-6">
-    {% for salon in tendencia %}
-      <a href="{% url 'detalle_salon' salon.id %}" class="block hover:shadow-lg rounded-lg overflow-hidden">
-        {% if salon.imagen %}
-          <img src="{{ salon.imagen.url }}" alt="{{ salon.nombre }}" class="w-full h-[150px] object-cover">
-        {% else %}
-          <img src="{% static 'myapp/default.jpg' %}" alt="Sin imagen" class="w-full h-[150px] object-cover">
-        {% endif %}
-        <div class="p-4 bg-white dark:bg-gray-800">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ salon.nombre }}</h3>
-          <p class="text-gray-600 dark:text-gray-300 font-bold">${{ salon.precio|intcomma }}</p>
-          <p class="text-gray-500 dark:text-gray-400">Categoría: <em>{{ salon.categoria }}</em></p>
-          <p class="text-yellow-500">⭐ {{ salon.calificacion }}</p>
-        </div>
+  <!-- =================== BANNER PRINCIPAL =================== -->
+  <div class="relative">
+    <img src="/media/heros/3 banner.png" class="w-full h-[500px] object-cover">
+    <div class="absolute inset-0 bg-black/40 flex flex-col justify-center items-center text-center px-4">
+      <h1 class="text-4xl font-extrabold text-white sm:text-5xl">Encuentra el salón perfecto</h1>
+      <p class="mt-4 text-lg text-white/80 max-w-2xl">
+        Reserva tu salón de fiestas ideal y haz de tu evento un recuerdo inolvidable.
+      </p>
+      <a href="{% url 'lista_salones' %}" class="mt-8 inline-block rounded-md bg-white text-indigo-600 font-semibold px-6 py-3 hover:bg-gray-100 transition">
+        Ver salones
       </a>
-    {% endfor %}
+    </div>
   </div>
 
-  <!-- Más cercanos -->
-  <h2 class="text-2xl font-bold mt-10 mb-4">Más cercanos</h2>
-  <div class="flex flex-wrap gap-6">
-    {% for salon in mas_cercanos %}
-      <a href="{% url 'detalle_salon' salon.id %}" 
-         class="block hover:shadow-lg rounded-lg overflow-hidden w-[220px] flex flex-col h-full">
-        {% if salon.imagen %}
-          <img src="{{ salon.imagen.url }}" alt="{{ salon.nombre }}" class="w-full h-[150px] object-cover">
-        {% else %}
-          <img src="{% static 'media/null.jpg' %}" alt="Sin imagen" class="w-full h-[150px] object-cover">
-        {% endif %}
-        <div class="p-4 bg-white dark:bg-gray-800 flex-1 flex flex-col justify-between">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ salon.nombre }}</h3>
-          <p class="text-gray-600 dark:text-gray-300 font-bold">${{ salon.precio|intcomma }}</p>
-          <p class="text-gray-500 dark:text-gray-400">Categoría: <em>{{ salon.categoria }}</em></p>
-          <p class="text-yellow-500">⭐ {{ salon.calificacion }}</p>
-        </div>
-      </a>
-    {% endfor %}
+  <!-- =================== NUEVOS SALONES =================== -->
+  <section id="nuevos-salones" class="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8 relative">
+    <h2 class="text-3xl font-bold text-gray-900 mb-8">Nuevos salones</h2>
+
+    <div id="recientes" class="flex gap-6 overflow-x-auto scrollbar-hide snap-x snap-mandatory relative">
+  {% for salon in recientes %}
+    {% include 'theme/salon_card.html' with salon=salon %}
+  {% empty %}
+    <p class="text-gray-700 dark:text-gray-300">No hay salones recientes.</p>
+  {% endfor %}
+</div>
+
+
+    <!-- Botones scroll -->
+    <button class="absolute -left-5 top-1/2 -translate-y-1/2 z-10 p-3 bg-gray-200 rounded-full hover:bg-gray-300 scroll-left" data-target="recientes">
+      <svg class="w-6 h-6 text-gray-800" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m15 19-7-7 7-7"/>
+      </svg>
+    </button>
+    <button class="absolute -right-5 top-1/2 -translate-y-1/2 z-10 p-3 bg-gray-200 rounded-full hover:bg-gray-300 scroll-right" data-target="recientes">
+      <svg class="w-6 h-6 text-gray-800" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7"/>
+      </svg>
+    </button>
+  </section>
+
+  <!-- =================== BANNER SECUNDARIO =================== -->
+  <div class="relative my-16">
+    <img src="/media/heros/4 banner.png" class="w-full h-[400px] object-cover rounded-xl shadow-md">
+    <div class="absolute inset-0 bg-black/30 flex flex-col justify-center items-center text-center px-4">
+      <h2 class="text-3xl font-bold text-white sm:text-4xl">Haz de tu evento algo único</h2>
+      <p class="mt-3 text-white/80 max-w-xl">Explora nuestros salones en tendencia y más cercanos.</p>
+    </div>
   </div>
+
+  <!-- =================== SALONES EN TENDENCIA =================== -->
+  <section class="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8 relative">
+    <h2 class="text-3xl font-bold text-gray-900 mb-8">Tendencia</h2>
+
+    <div id="tendencia" class="flex gap-6 overflow-x-auto scrollbar-hide snap-x snap-mandatory relative">
+      {% for salon in tendencia %}
+        {% include 'theme/salon_card.html' with salon=salon %}
+      {% empty %}
+        <p class="text-gray-700 dark:text-gray-300">No hay salones en tendencia.</p>
+      {% endfor %}
+    </div>
+
+    <!-- Botones scroll -->
+    <button class="absolute -left-5 top-1/2 -translate-y-1/2 z-10 p-3 bg-gray-200 rounded-full hover:bg-gray-300 scroll-left" data-target="tendencia">
+      <svg class="w-6 h-6 text-gray-800" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m15 19-7-7 7-7"/>
+      </svg>
+    </button>
+    <button class="absolute -right-5 top-1/2 -translate-y-1/2 z-10 p-3 bg-gray-200 rounded-full hover:bg-gray-300 scroll-right" data-target="tendencia">
+      <svg class="w-6 h-6 text-gray-800" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7"/>
+      </svg>
+    </button>
+  </section>
+
+  <!-- =================== SALONES MÁS CERCANOS =================== -->
+  <section class="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8 relative">
+    <h2 class="text-3xl font-bold text-gray-900 mb-8">Más cercanos</h2>
+
+    <div id="mas-cercanos" class="flex gap-6 overflow-x-auto scrollbar-hide snap-x snap-mandatory relative">
+      {% for salon in mas_cercanos %}
+        {% include 'theme/salon_card.html' with salon=salon %}
+      {% empty %}
+        <p class="text-gray-700 dark:text-gray-300">No hay salones cercanos.</p>
+      {% endfor %}
+    </div>
+
+    <!-- Botones scroll -->
+    <button class="absolute -left-5 top-1/2 -translate-y-1/2 z-10 p-3 bg-gray-200 rounded-full hover:bg-gray-300 scroll-left" data-target="mas-cercanos">
+      <svg class="w-6 h-6 text-gray-800" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m15 19-7-7 7-7"/>
+      </svg>
+    </button>
+    <button class="absolute -right-5 top-1/2 -translate-y-1/2 z-10 p-3 bg-gray-200 rounded-full hover:bg-gray-300 scroll-right" data-target="mas-cercanos">
+      <svg class="w-6 h-6 text-gray-800" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7"/>
+      </svg>
+    </button>
+  </section>
 
 </div>
+
+<!-- =================== SCRIPT PARA SCROLL =================== -->
+<script>
+  document.querySelectorAll('.scroll-left').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = document.getElementById(btn.dataset.target);
+      target.scrollBy({ left: -300, behavior: 'smooth' });
+    });
+  });
+  document.querySelectorAll('.scroll-right').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = document.getElementById(btn.dataset.target);
+      target.scrollBy({ left: 300, behavior: 'smooth' });
+    });
+  });
+</script>
+
+<style>
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+</style>
+
 {% endblock %}

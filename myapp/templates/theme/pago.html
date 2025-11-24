@@ -1,400 +1,280 @@
-{% extends "theme/base.html" %}
+{% extends 'theme/base.html' %}
 {% load humanize %}
-
 {% block content %}
-<style>
-  body, html {
-    background-color: #121212;
-    color: #ddd;
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  }
-  .container {
-    max-width: 900px;
-    margin: 40px auto;
-    display: flex;
-    gap: 30px;
-    background: #1e1e1e;
-    border-radius: 10px;
-    padding: 30px;
-  }
-  .left-panel, .right-panel {
-    flex: 1;
-  }
-  .left-panel {
-    border-right: 1px solid #333;
-    padding-right: 30px;
-  }
-  .left-panel h2 {
-    margin-bottom: 10px;
-    font-weight: 600;
-    color: white;
-  }
-  .price-big {
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin: 10px 0 30px 0;
-    color: white;
-  }
-  .line-item {
-    display: flex;
-    justify-content: space-between;
-    margin: 12px 0;
-    font-weight: 500;
-    color: white;
-  }
-  .line-item.total {
-    font-weight: 700;
-    font-size: 1.2rem;
-    margin-top: 25px;
-    color: white;
-  }
-  .right-panel form {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    color: white;
-  }
-  label {
-    font-weight: 600;
-    font-size: 0.9rem;
-    margin-bottom: 4px;
-    color: white;
-  }
-  input[type="text"], input[type="email"], input[type="tel"], select {
-    padding: 10px;
-    border-radius: 5px;
-    border: none;
-    background-color: #2c2c2c;
-    color: #eee;
-    font-size: 1rem;
-    width: 100%;
-  }
-  input[type="checkbox"] {
-    margin-right: 10px;
-    transform: scale(1.2);
-  }
-  .checkbox-label {
-    display: flex;
-    align-items: center;
-    font-size: 0.9rem;
-    color: #bbb;
-  }
-  .small-note {
-    font-size: 0.75rem;
-    color: #777;
-    margin-left: 28px;
-    margin-top: -10px;
-    margin-bottom: 10px;
-  }
-  .btn-submit {
-    background-color: #10a37f;
-    border: none;
-    padding: 15px;
-    border-radius: 6px;
-    font-weight: 700;
-    color: white;
-    font-size: 1.1rem;
-    cursor: pointer;
-    margin-top: 15px;
-    transition: background-color 0.3s ease;
-  }
-  .btn-submit:hover {
-    background-color: #0e8e6e;
-  }
-  .card-info {
-    display: flex;
-    gap: 10px;
-  }
-  .card-info input[type="text"] {
-    flex: 1;
-  }
-  .card-info .short-input {
-    width: 70px;
-  }
-  .card-icons {
-    margin-left: 6px;
-    height: 28px;
-    align-self: center;
-  }
-  a.link-small {
-    color: #4db8a5;
-    text-decoration: none;
-    font-size: 0.8rem;
-    margin-left: 28px;
-  }
-  a.link-small:hover {
-    text-decoration: underline;
-  }
-  .powered-by {
-    font-size: 0.7rem;
-    color: #555;
-    text-align: center;
-    margin-top: 25px;
-  }
-  .powered-by a {
-    color: #555;
-    text-decoration: none;
-    margin: 0 6px;
-  }
-  .powered-by a:hover {
-    text-decoration: underline;
-  }
-</style>
 
-<div class="container">
-  <!-- Left summary panel -->
-  <div class="container">
-  <!-- Left summary panel -->
-  <div class="left-panel">
-    <h2>Reservaciones A&N</h2>
-    
-    <!-- Precio original por día -->
-<div class="price-big">
-  ${{ precio_original_por_dia|intcomma }}
-  <span style="font-weight: 400; font-size: 1rem;">MXN por día</span>
+{% block navbar %}
+<!-- Navbar oculto -->
+{% endblock %}
+
+
+
+
+
+
+
+<!-- CONTENEDOR PRINCIPAL -->
+
+
+
+  <div class="max-w-5xl mx-auto mb-4 p-6">
+    {% include 'theme/step_component.html' with step=3 progress=98 %}
 </div>
 
-<!-- Precio total sin descuento -->
-<div class="line-item">
-  <span>Renta del salón</span>
-  <span>${{ total_original|intcomma }} <span style="font-size: 0.6em;">MXN</span></span>
-</div>
+  
 
-{% if descuento_aplicado > 0 %}
-  <div class="line-item" style="color: #4caf50;">
-    <span>Descuento ({{ codigo_ingresado|upper }})</span>
-    <span>- ${{ descuento_aplicado|intcomma }} MXN</span>
-  </div>
+  <div class="max-w-5xl mx-auto bg-gray-50 shadow-lg rounded-xl p-8 flex flex-col md:flex-row gap-8">
 
-  <div class="line-item total">
-    <span>Total a pagar</span>
-    <span>${{ total_final|intcomma }} MXN</span>
-  </div>
-{% else %}
-  <div class="line-item total">
-    <span>Total a pagar</span>
-    <span>${{ total_original|intcomma }} MXN</span>
-  </div>
-{% endif %}
+    <!-- LEFT PANEL -->
+    <div class="w-full md:w-1/2 border-r border-gray-300 pr-6">
 
-  </div>
+      <h2 class="text-2xl font-semibold mb-2 text-gray-900">Reservaciones A&N</h2>
 
-  <!-- Right form panel -->
-
-  <!-- FORMULARIO para aplicar código de descuento -->
-  <div class="right-panel">
-    <form method="POST" action="" style="margin-bottom: 20px;">
-      {% csrf_token %}
-      <input type="hidden" name="reserva_id" value="{{ reserva.id }}">
-      
-      <label for="codigo_descuento">Código de descuento</label>
-      <div style="display: flex; gap: 8px;">
-        <input type="text" id="codigo_descuento" name="codigo_descuento" placeholder="Ingresa código (ej. pongame10)" value="{{ codigo_ingresado }}" style="flex: 1;">
-        <button type="submit" name="aplicar_descuento" value="1"
-  style="
-    white-space: nowrap;
-    background-color: #2563eb; /* azul vibrante */
-    color: white;
-    border: none;
-    padding: 10px 18px;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  "
-  onmouseover="this.style.backgroundColor='#1e40af'"
-  onmouseout="this.style.backgroundColor='#2563eb'">
-  Aplicar
-</button>
-
+      <div class="text-4xl font-bold mt-4 mb-6 text-gray-900">
+        ${{ precio_original_por_dia|intcomma }}
+        <span class="text-base font-medium text-gray-600">MXN por día</span>
       </div>
-    </form>
 
+      <!-- EXTRAS -->
+      {% if extras_seleccionados %}
+        <h3 class="text-lg font-medium text-gray-700 mb-2">Servicios Extra</h3>
+<hr class="my-2 border-gray-300">
+        {% for extra in extras_seleccionados %}
+          <div class="flex justify-between text-gray-700 py-1">
+            <span>{{ extra.nombre }}</span>
+            <span>${{ extra.precio|intcomma }}</span>
+          </div>
+          
+        {% endfor %}
 
+        <div class="flex justify-between text-gray-600 py-1">
+          <span>Subtotal extras</span>
+          <span>${{ precio_extras|intcomma }}</span>
+        </div>
+        <hr class="my-2 border-gray-300">
+      {% endif %}
 
-
-
-
-    <!-- FORMULARIO para procesar el pago -->
-    <form method="POST" action="{% url 'procesar_pago' %}">
-      {% csrf_token %}
-      <input type="hidden" name="reserva_id" value="{{ reserva.id }}">
-      <input type="hidden" name="codigo_descuento" value="{{ codigo_ingresado }}">
+      <!-- TOTAL ORIGINAL -->
+      <div class="flex justify-between text-gray-700 font-medium mt-4">
+        <span>Total sin descuento</span>
+        <span>${{ total_original|intcomma }} MXN</span>
+        
+      </div>
       
-      <label for="email">Información del contacto</label>
-      <input type="email" id="email" name="email" value="{{ request.user.email }}" placeholder="Email" required>
 
-      <label for="card_number">Información de la tarjeta</label>
-      <div class="card-info" style="display: flex; align-items: center; gap: 1rem;">
+      {% if descuento_aplicado > 0 %}
+        <!-- DESCUENTO -->
+        <div class="flex justify-between text-green-600 mt-2 font-medium">
+          <span>Descuento ({{ codigo_ingresado|upper }})</span>
+          <span>- ${{ descuento_aplicado|intcomma }} MXN</span>
+        </div>
+        <hr class="my-2 border-gray-300">
+
+        <div class="flex justify-between text-xl font-bold mt-4">
+          <span>Total a pagar</span>
+          <span>${{ total_final|intcomma }} MXN</span>
+          
+        </div>
+        
+
+      {% else %}
+        <!-- SIN DESCUENTO -->
+        <div class="flex justify-between text-xl font-bold mt-4">
+          <span>Total a pagar</span>
+          <span>${{ total_original|intcomma }} MXN</span>
+        </div>
+        
+      {% endif %}
+
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="w-full md:w-1/2 flex flex-col gap-6">
+
+      <!-- APPLY DISCOUNT FORM -->
+      <form method="POST">
+
+
+        {% csrf_token %}
+        <input type="hidden" name="reserva_id" value="{{ reserva.id }}">
+        
+        <label class="text-gray-700 font-medium text-sm">Código de descuento</label>
+
+        <div class="flex gap-3">
+          <input
+            type="text"
+            id="codigo_descuento"
+            name="codigo_descuento"
+            class="flex-1 p-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-black"
+            placeholder="Ingresa código (ej. pongame10)"
+            value="{{ codigo_ingresado }}"
+          >
+
+          <button
+            type="submit"
+            name="aplicar_descuento"
+            value="1"
+            class="px-4 py-2 bg-black text-white rounded-lg font-semibold hover:bg-gray-900 transition"
+          >
+            Aplicar
+          </button>
+        </div>
+      </form>
+
+      <!-- PAYMENT FORM -->
+      <form method="POST" class="flex flex-col gap-3">
+
+
+
+
+        {% csrf_token %}
+        <input type="hidden" name="realizar_pago" value="1">
+        
+
+
+        <!-- EMAIL -->
+        <label class="font-medium text-sm text-gray-700">Información del contacto</label>
+        <input
+          type="email"
+          name="email"
+          value="{{ request.user.email }}"
+          class="p-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-black"
+          required
+        >
+
+        <!-- CARD NUMBER -->
+        <label class="font-medium text-sm text-gray-700">Información de la tarjeta</label>
+
+        <div class="flex items-center gap-2">
+          <input
+            type="text"
+            id="card_number"
+            name="card_number"
+            placeholder="1234 1234 1234 1234"
+            maxlength="19"
+            autocomplete="cc-number"
+            class="flex-1 p-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-black"
+            required
+          />
+
+          <i class="fab fa-cc-visa text-xl text-blue-700"></i>
+          <i class="fab fa-cc-mastercard text-xl text-red-600"></i>
+          <i class="fab fa-cc-amex text-xl text-blue-500"></i>
+          <i class="fab fa-cc-discover text-xl text-orange-400"></i>
+        </div>
+
+        <!-- EXPIRY / CVC -->
+        <div class="flex gap-3">
+          <input
+            type="text"
+            id="expiry"
+            name="expiry"
+            placeholder="MM / YY"
+            maxlength="5"
+            class="w-24 p-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-black"
+            required
+          >
+
+          <input
+            type="text"
+            id="cvc"
+            name="cvc"
+            placeholder="CVC"
+            maxlength="4"
+            class="w-20 p-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-black"
+            required
+          >
+        </div>
+
+        <!-- CARD NAME -->
+        <label class="font-medium text-sm text-gray-700">Titular de la tarjeta</label>
         <input
           type="text"
-          id="card_number"
-          name="card_number"
-          placeholder="1234 1234 1234 1234"
-          maxlength="19"
-          autocomplete="cc-number"
+          id="card_name"
+          name="card_name"
+          placeholder="Nombre completo"
+          class="p-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-black"
           required
-          style="flex: 1; padding: 0.5rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 6px;"
-        />
-        <div class="tarjetas-aceptadas" style="display: flex; gap: 0.8rem;">
-          <i class="fab fa-cc-visa fa-lg" style="color:#1a1f71;" title="Visa"></i>
-          <i class="fab fa-cc-mastercard fa-lg" style="color:#eb001b;" title="MasterCard"></i>
-          <i class="fab fa-cc-amex fa-lg" style="color:#2e77bb;" title="American Express"></i>
-          <i class="fab fa-cc-discover fa-lg" style="color:#86b8cf;" title="Discover"></i>
-        </div>
+        >
+
+        <label class="flex items-center gap-2 text-sm text-gray-700">
+          <input type="checkbox" name="save_info" class="w-4 h-4"> Guardar mi información
+        </label>
+
+        <label class="flex items-center gap-2 text-sm text-gray-700">
+          <input type="checkbox" name="business" class="w-4 h-4"> Compra como empresa
+        </label>
+
+        <button
+          type="submit"
+          name="realizar_pago"
+          value="1"
+          class="mt-4 bg-black text-white py-3 rounded-lg font-semibold text-lg hover:bg-gray-900 transition"
+        >
+          Pagar
+        </button>
+      </form>
+
+      <div class="text-center text-xs text-gray-500 mt-4">
+        Powered by <a href="https://stripe.com" target="_blank" class="underline">stripe</a> |
+        <a href="#" class="underline">Términos</a> | <a href="#" class="underline">Privacidad</a>
       </div>
 
-      <div class="card-info" style="margin-top: 8px;">
-        <input type="text" id="expiry" name="expiry" placeholder="MM / YY" maxlength="5" class="short-input" autocomplete="cc-exp" required>
-        <input
-  type="text"
-  id="cvc"
-  name="cvc"
-  placeholder="CVC"
-  maxlength="4"
-  pattern="^\d{3,4}$"
-  class="short-input"
-  autocomplete="cc-csc"
-  required
-/>
-
-      </div>
-
-      <label for="card_name">Titular de la tarjeta</label>
-      <input type="text" id="card_name" name="card_name" placeholder="Nombre completo en la tarjeta" autocomplete="cc-name" required>
-
-      <label class="checkbox-label">
-        <input type="checkbox" name="save_info" id="save_info">
-        Guardar mi información para un pago más rápido
-      </label>
-      <p class="small-note">Paga más rápido en Reservaciones A&N y en todos los lugares donde Link es aceptado.</p>
-
-      <label class="checkbox-label">
-        <input type="checkbox" name="business" id="business">
-        Estoy realizando esta compra como empresa
-      </label>
-
-      <button type="submit" class="btn-submit" name="realizar_pago" value="1">Pagar</button>
-
-    </form>
-
-<script>
-  const cardNumberInput = document.getElementById('card_number');
-
-  // Formatea la tarjeta con guiones cada 4 dígitos
-  cardNumberInput.addEventListener('input', (e) => {
-    let value = cardNumberInput.value;
-    // Eliminar todo menos números
-    value = value.replace(/\D/g, '');
-
-    // Insertar guiones cada 4 dígitos
-    let formattedValue = '';
-    for (let i = 0; i < value.length; i++) {
-      if (i > 0 && i % 4 === 0) {
-        formattedValue += '-';
-      }
-      formattedValue += value[i];
-    }
-    cardNumberInput.value = formattedValue;
-
-    // Limpiar mensaje de error al escribir
-    cardNumberInput.setCustomValidity('');
-  });
-
-  // Validación al enviar el formulario
-  cardNumberInput.form.addEventListener('submit', (event) => {
-    const rawNumber = cardNumberInput.value.replace(/-/g, '');
-    if (rawNumber.length < 16) {
-      cardNumberInput.setCustomValidity('El número de tarjeta debe contener 16 dígitos.');
-      cardNumberInput.reportValidity();
-      event.preventDefault();
-    }
-  });
-</script>
-
-
-
-
-
-<script>
-  const expiryInput = document.getElementById('expiry');
-
-  expiryInput.addEventListener('input', function () {
-    let value = this.value.replace(/\D/g, ''); // Quitar todo menos números
-
-    if (value.length > 4) {
-      value = value.slice(0, 4);
-    }
-
-    if (value.length > 2) {
-      value = value.slice(0, 2) + '/' + value.slice(2);
-    }
-
-    // Validar mes válido
-    if (value.length >= 2) {
-      const month = value.slice(0, 2);
-      if (parseInt(month, 10) < 1 || parseInt(month, 10) > 12) {
-        value = '';
-      }
-    }
-
-    this.value = value;
-  });
-
-  // Validar al salir del input que esté completo
-  expiryInput.addEventListener('blur', function () {
-    if (!this.value.match(/^(0[1-9]|1[0-2])\/\d{2}$/)) {
-      this.setCustomValidity('Ingrese la fecha completa en formato MM/AA');
-    } else {
-      this.setCustomValidity('');
-    }
-  });
-</script>
-
-<script>
-  const cardNameInput = document.getElementById('card_name');
-
-  cardNameInput.addEventListener('input', function(e) {
-    // Solo letras mayúsculas, minúsculas y espacios permitidos
-    this.value = this.value.replace(/[^a-zA-Z\s]/g, '');
-  });
-</script>
-
-
-<script>
-  const cvcInput = document.getElementById('cvc');
-
-  cvcInput.addEventListener('input', function() {
-    // Solo números
-    this.value = this.value.replace(/\D/g, '');
-
-    // Limitar a máximo 4 dígitos
-    if (this.value.length > 4) {
-      this.value = this.value.slice(0, 4);
-    }
-  });
-
-  cvcInput.addEventListener('invalid', function(event) {
-    if (this.validity.valueMissing) {
-      this.setCustomValidity('Por favor ingresa el CVC.');
-    } else if (this.validity.patternMismatch) {
-      this.setCustomValidity('El CVC debe tener entre 3 y 4 números.');
-    } else {
-      this.setCustomValidity('');
-    }
-  });
-
-  cvcInput.addEventListener('input', function(event) {
-    this.setCustomValidity('');
-  });
-</script>
-
-
-
-    <div class="powered-by">
-      Powered by <a href="https://stripe.com" target="_blank" rel="noopener noreferrer">stripe</a> | <a href="#">Términos</a> | <a href="#">Privacidad</a>
     </div>
-  </div>
+ 
+
+{% block contenido_pago %}
+        {% endblock %}
+
+    </div>
 </div>
 
+<!-- JS VALIDATION -->
+<script>
+  // Card formatting
+  const cardNumberInput = document.getElementById('card_number');
+
+  cardNumberInput.addEventListener('input', e => {
+    let value = e.target.value.replace(/\D/g, '');
+    let formatted = value.match(/.{1,4}/g)?.join('-') || '';
+    e.target.value = formatted;
+    e.target.setCustomValidity('');
+  });
+
+  cardNumberInput.form.addEventListener('submit', e => {
+    let raw = cardNumberInput.value.replace(/-/g, '');
+    if (raw.length < 16) {
+      e.preventDefault();
+      cardNumberInput.setCustomValidity('El número de tarjeta debe contener 16 dígitos.');
+      cardNumberInput.reportValidity();
+    }
+  });
+
+  // Expiry
+  const expiry = document.getElementById('expiry');
+  expiry.addEventListener('input', function () {
+    let v = this.value.replace(/\D/g, '');
+    if (v.length > 4) v = v.slice(0, 4);
+    if (v.length > 2) v = v.slice(0, 2) + '/' + v.slice(2);
+    this.value = v;
+  });
+
+  expiry.addEventListener('blur', function () {
+    if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(this.value)) {
+      this.setCustomValidity('Ingrese la fecha en formato MM/AA');
+    } else this.setCustomValidity('');
+  });
+
+  // Card name only letters
+  document.getElementById('card_name').addEventListener('input', function() {
+    this.value = this.value.replace(/[^a-zA-Z\s]/g, '');
+  });
+
+  // CVC
+  const cvc = document.getElementById('cvc');
+  cvc.addEventListener('input', function () {
+    this.value = this.value.replace(/\D/g, '').slice(0,4);
+  });
+</script>
+
 {% endblock %}
+{% block footer %}{% endblock %}
