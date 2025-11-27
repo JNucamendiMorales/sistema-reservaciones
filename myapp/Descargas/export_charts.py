@@ -51,29 +51,43 @@ def generar_datos_para(charts):
 # CSV → solo tablas
 # ===============================================================
 def exportar_xlsx_nativo(charts_data):
+    import io
+    from openpyxl import Workbook
+    from openpyxl.chart import BarChart, LineChart, PieChart, Reference
+    from django.http import HttpResponse
+
     wb = Workbook()
     ws_default = wb.active
     wb.remove(ws_default)
 
     for chart in charts_data:
         ws = wb.create_sheet(title=chart["nombre"][:31])
-        ws.append(["Etiqueta", "Valor"])
+        # Headers personalizados
+        ws.append(["Mes", "No. reservaciones"])
+
         for fila in chart["datos"]:
-            ws.append([fila["Etiqueta"], fila["Valor"]])
+            ws.append([fila.get("Etiqueta", ""), fila.get("Valor", "")])
 
         chart_name = chart["nombre"].lower()
         if "barras" in chart_name:
             c = BarChart()
+            c.x_axis.title = "Mes"
+            c.y_axis.title = "No. reservaciones"
         elif "líneas" in chart_name or "lineas" in chart_name:
             c = LineChart()
+            c.x_axis.title = "Mes"
+            c.y_axis.title = "No. reservaciones"
         elif "pastel" in chart_name or "pie" in chart_name:
             c = PieChart()
         else:
             c = BarChart()
+            c.x_axis.title = "Mes"
+            c.y_axis.title = "No. reservaciones"
 
-        data = Reference(ws, min_col=2, min_row=1, max_row=len(chart["datos"]) + 1)
+        # Aquí ya no incluimos la fila de encabezado como parte de los datos
+        data = Reference(ws, min_col=2, min_row=2, max_row=len(chart["datos"]) + 1)
         categories = Reference(ws, min_col=1, min_row=2, max_row=len(chart["datos"]) + 1)
-        c.add_data(data, titles_from_data=True)
+        c.add_data(data, titles_from_data=False)  # No usar la primera fila como título
         c.set_categories(categories)
         c.title = chart["nombre"]
         ws.add_chart(c, "D2")
@@ -88,6 +102,7 @@ def exportar_xlsx_nativo(charts_data):
     )
     response["Content-Disposition"] = 'attachment; filename="graficas.xlsx"'
     return response
+
 
 
 

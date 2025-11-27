@@ -57,7 +57,7 @@ from myapp.views.ajax_views import (
 )
 
 # --- DRF ViewSets ---
-from myapp.views.api_views import SalonViewSet, ReservacionViewSet
+from myapp.views.api_views import SalonViewSet, ReservacionViewSet,search_salones
 
 
 # --- Router DRF ---
@@ -179,6 +179,12 @@ urlpatterns = [
     path('api/salones/top-calificacion/', top_calificacion, name='top_calificacion'),
     path('api/salones/top-precio/', top_precio, name='top_precio'),
     path('api/salones/top-ingresos/', top_ingresos, name='top_ingresos'),
+    
+    #=======================================================
+    #===================== Search bar ======================
+    #=======================================================
+    
+    path("api/search/", search_salones, name="search_salones"),
 
     # ======================================================
     # ==================== DESCARGAS ========================

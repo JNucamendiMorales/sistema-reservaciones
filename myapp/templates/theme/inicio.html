@@ -22,7 +22,7 @@
   <section id="nuevos-salones" class="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8 relative">
     <h2 class="text-3xl font-bold text-gray-900 mb-8">Nuevos salones</h2>
 
-    <div id="recientes" class="flex gap-6 overflow-x-auto scrollbar-hide snap-x snap-mandatory relative">
+    <div id="recientes" class="flex gap-6 overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth relative">
   {% for salon in recientes %}
     {% include 'theme/salon_card.html' with salon=salon %}
   {% empty %}
@@ -57,7 +57,8 @@
   <section class="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8 relative">
     <h2 class="text-3xl font-bold text-gray-900 mb-8">Tendencia</h2>
 
-    <div id="tendencia" class="flex gap-6 overflow-x-auto scrollbar-hide snap-x snap-mandatory relative">
+    <div id="tendencia" class="flex gap-6 overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth relative">
+
       {% for salon in tendencia %}
         {% include 'theme/salon_card.html' with salon=salon %}
       {% empty %}
@@ -82,7 +83,7 @@
   <section class="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8 relative">
     <h2 class="text-3xl font-bold text-gray-900 mb-8">Más cercanos</h2>
 
-    <div id="mas-cercanos" class="flex gap-6 overflow-x-auto scrollbar-hide snap-x snap-mandatory relative">
+    <div id="mas-cercanos" class="flex gap-6 overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth relative">
       {% for salon in mas_cercanos %}
         {% include 'theme/salon_card.html' with salon=salon %}
       {% empty %}
@@ -107,19 +108,136 @@
 
 <!-- =================== SCRIPT PARA SCROLL =================== -->
 <script>
-  document.querySelectorAll('.scroll-left').forEach(btn => {
+/* ------- Smooth card-by-card scrolling for gallery buttons ------- */
+/* Replace your current script with this one. It:
+   - Finds the first real card element (ignores text nodes)
+   - Computes card width + actual gap (works for Tailwind gap-*)
+   - Animates to the target scroll position with easeOutCubic
+   - Cancels previous animation when a new click happens
+*/
+
+(function () {
+  // Easing function (easeOutCubic)
+  function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+
+  // Utility to get numeric gap between flex children (supports modern 'gap' or fallback to guessed value)
+  function getGapPx(container) {
+    try {
+      const style = getComputedStyle(container);
+      // modern browsers support style.gap; fallback to columnGap/rowGap
+      const gapValue = style.gap || style.columnGap || style.rowGap || '';
+      if (gapValue && gapValue.endsWith('px')) return parseFloat(gapValue);
+      // If gap is in rem/em/%, try computed pixel value (rare). We'll fallback next:
+    } catch (e) {}
+    // fallback: attempt to compute from difference of first two children positions
+    const children = Array.from(container.children).filter(c => c.offsetWidth);
+    if (children.length >= 2) {
+      const r0 = children[0].getBoundingClientRect();
+      const r1 = children[1].getBoundingClientRect();
+      return Math.max(0, Math.round((r1.left - (r0.left + r0.width))));
+    }
+    // final fallback: typical Tailwind 'gap-6' -> 1.5rem -> usually 24px
+    return 24;
+  }
+
+  // Animate scrollLeft to target position with duration (ms)
+  function animateTo(element, target, duration = 500) {
+    // cancel previous animation if present
+    if (element._scrollAnim) {
+      cancelAnimationFrame(element._scrollAnim.raf);
+      element._scrollAnim = null;
+    }
+
+    const start = element.scrollLeft;
+    const max = element.scrollWidth - element.clientWidth;
+    target = Math.max(0, Math.min(target, max));
+    const distance = target - start;
+    if (distance === 0) return;
+
+    const startTime = performance.now();
+    const anim = { raf: null };
+
+    function step(now) {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = easeOutCubic(progress);
+      element.scrollLeft = start + distance * eased;
+
+      if (progress < 1) {
+        anim.raf = requestAnimationFrame(step);
+      } else {
+        element._scrollAnim = null;
+      }
+    }
+
+    element._scrollAnim = anim;
+    anim.raf = requestAnimationFrame(step);
+  }
+
+  // Safe function to get first visible card element
+  function getFirstCard(container) {
+    return Array.from(container.children).find(el => el.nodeType === 1 && el.offsetWidth);
+  }
+
+  // Main wiring: attach listeners to left/right buttons
+  document.querySelectorAll('.scroll-left, .scroll-right').forEach(btn => {
     btn.addEventListener('click', () => {
-      const target = document.getElementById(btn.dataset.target);
-      target.scrollBy({ left: -300, behavior: 'smooth' });
+      const container = document.getElementById(btn.dataset.target);
+      if (!container) return;
+
+      const firstCard = getFirstCard(container);
+      if (!firstCard) return;
+
+      const gap = getGapPx(container);
+      // Use bounding rect to include transforms and subpixel sizes
+      const cardWidth = Math.round(firstCard.getBoundingClientRect().width);
+
+      // How many cards to move per click? 1 by default. Use container.clientWidth/cardWidth for "page" movement.
+      const cardsToMove = 1;
+      const direction = btn.classList.contains('scroll-right') ? 1 : -1;
+      const delta = (cardWidth + gap) * cardsToMove * direction;
+
+      const current = container.scrollLeft;
+      const target = current + delta;
+
+      // duration can be adjusted based on cardWidth for consistent speed
+      const baseDuration = 450; // ms for one card
+      const duration = Math.min(800, Math.max(300, Math.abs(delta) / (cardWidth + gap) * baseDuration));
+
+      animateTo(container, target, duration);
     });
   });
-  document.querySelectorAll('.scroll-right').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const target = document.getElementById(btn.dataset.target);
-      target.scrollBy({ left: 300, behavior: 'smooth' });
+
+  // Optional: allow keyboard arrows when a gallery is focused (nice UX)
+  document.querySelectorAll('#recientes, #tendencia, #mas-cercanos').forEach(container => {
+    container.setAttribute('tabindex', '0'); // make focusable
+    container.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        const fakeBtn = { dataset: { target: container.id }, classList: { contains: () => true } };
+        // reuse logic by dispatching programmatically
+        const firstCard = getFirstCard(container);
+        if (!firstCard) return;
+        const gap = getGapPx(container);
+        const cardWidth = Math.round(firstCard.getBoundingClientRect().width);
+        const delta = cardWidth + gap;
+        animateTo(container, container.scrollLeft + delta, 350);
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        const firstCard = getFirstCard(container);
+        if (!firstCard) return;
+        const gap = getGapPx(container);
+        const cardWidth = Math.round(firstCard.getBoundingClientRect().width);
+        const delta = cardWidth + gap;
+        animateTo(container, container.scrollLeft - delta, 350);
+      }
     });
   });
+})();
 </script>
+
+
+
 
 <style>
   .scrollbar-hide::-webkit-scrollbar { display: none; }
