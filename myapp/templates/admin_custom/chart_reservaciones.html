@@ -9,381 +9,442 @@
 
   <!-- === GRID PRINCIPAL === -->
   <div class="flex flex-wrap gap-6">
-  <!-- Tarjeta de barras -->
-  <div class="bg-gradient-to-b from-gray-800 to-gray-900 rounded-xl p-6 border border-gray-700 shadow-lg h-72 w-[550px]">
-    <h5 class="text-gray-400 text-sm mb-2">Reservaciones por periodo</h5>
-    <div class="h-full w-full">
-      <canvas id="barChart" class="h-full w-full" style="padding-bottom: 1.5rem;"></canvas>
-    </div>
-  </div>
-
-  <!-- Tarjeta de pastel -->
-  <div class="bg-gradient-to-b from-gray-800 to-gray-900 rounded-xl p-6 border border-gray-700 shadow-lg h-72 w-[640px]">
-    <h5 class="text-gray-400 text-sm mb-2">Salones más reservados</h5>
-    <div class="flex items-start min-h-0 h-full">
-      <div class="flex-shrink-0 mr-4 self-start">
-        <canvas id="pieChart" style="max-width: 200px;"></canvas>
-      </div>
-
-    <!-- Leyenda scrollable -->
-    <div class="flex-1 pl-2 pr-0">
-      <div id="pieLegendContainer" class="allow-scroll custom-scroll" style="max-height:12rem; padding-right:0.4rem;"></div>
-    </div>
-
-  </div>
-</div>
-
-
-    
-
-<!-- Contenedor principal: tarjeta + botones a la derecha -->
-<div class="flex flex-nowrap gap-8 items-start">
-
-  <!-- Tarjeta de líneas -->
-  <div class="bg-gradient-to-b from-gray-800 to-gray-900 rounded-xl p-6 border border-gray-700 shadow-lg h-[300px] w-[800px]">
-    <h5 class="text-gray-400 text-sm mb-2">Ingresos por periodo</h5>
-    <div class="h-full w-full">
-      <canvas id="lineChart" class="h-full w-full"></canvas>
-    </div>
-  </div>
-
-  <!-- Contenedor de botones -->
-  <div class="flex flex-col justify-start space-y-8 mt-4">
-
-    <!-- Grupo: Periodo -->
-    <div class="flex flex-col items-start space-y-2">
-      <span class="text-gray-300 font-medium text-lg">Periodo</span>
-      <div class="flex space-x-3">
-        <button id="btnSemana" class="px-4 py-2 bg-indigo-600 rounded-lg text-white font-semibold text-sm hover:bg-indigo-500 transition">🗓️ Semanal</button>
-        <button id="btnMes" class="px-4 py-2 bg-gray-700 rounded-lg text-gray-200 font-semibold text-sm hover:bg-gray-600 transition">📅 Mensual</button>
+    <!-- Tarjeta de barras -->
+    <div
+      class="bg-gradient-to-b from-gray-800 to-gray-900 rounded-xl p-6 border border-gray-700 shadow-lg h-72 w-[550px]">
+      <h5 id="barTitle" class="text-gray-400 text-sm mb-2">Reservaciones por periodo</h5>
+      <div class="h-full w-full">
+        <canvas id="barChart" class="h-full w-full" style="padding-bottom: 1.5rem;"></canvas>
       </div>
     </div>
 
-    <!-- Grupo: Análisis -->
-    <div class="flex flex-col items-start space-y-2">
-      <span class="text-gray-300 font-medium text-lg">Análisis</span>
-      <div class="flex space-x-3">
-        <button id="btnMejores" class="px-4 py-2 bg-green-600 rounded-lg text-white font-semibold text-sm hover:bg-green-500 transition">🏆 Mejor</button>
-        <button id="btnPeores" class="px-4 py-2 bg-gray-700 rounded-lg text-gray-200 font-semibold text-sm hover:bg-gray-600 transition">⚠️ Peor</button>
+    <!-- Tarjeta de pastel -->
+    <div
+      class="bg-gradient-to-b from-gray-800 to-gray-900 rounded-xl p-6 border border-gray-700 shadow-lg h-72 w-[640px]">
+      <h5 id="pieTitle" class="text-gray-400 text-sm mb-2">Salones más reservados</h5>
+      <div class="flex items-start min-h-0 h-full">
+        <div class="flex-shrink-0 mr-4 self-start">
+          <canvas id="pieChart" style="max-width: 200px;"></canvas>
+        </div>
+
+        <!-- Leyenda scrollable -->
+        <div class="flex-1 pl-2 pr-0">
+          <div id="pieLegendContainer" class="allow-scroll custom-scroll"
+            style="max-height:12rem; padding-right:0.4rem;"></div>
+        </div>
+
       </div>
     </div>
 
-    <!-- Grupo: Descargar -->
-    <div class="flex flex-col items-start space-y-2">
-      <span class="text-gray-300 font-medium text-lg">Descargar</span>
-      <div class="flex space-x-3">
-        <button id="btnXLSX" class="px-4 py-2 bg-blue-600 rounded-lg text-white font-semibold text-sm hover:bg-blue-500 transition">📊 XLSX</button>
-        <button id="btnCSV" class="px-4 py-2 bg-blue-600 rounded-lg text-white font-semibold text-sm hover:bg-blue-500 transition">🗃️ CSV</button>
-        <button id="btnPDF" class="px-4 py-2 bg-blue-600 rounded-lg text-white font-semibold text-sm hover:bg-blue-500 transition">📄 PDF</button>
+
+
+
+    <!-- Contenedor principal: tarjeta + botones a la derecha -->
+    <div class="flex flex-nowrap gap-8 items-start">
+
+      <!-- Tarjeta de líneas -->
+      <div
+        class="bg-gradient-to-b from-gray-800 to-gray-900 rounded-xl p-6 border border-gray-700 shadow-lg h-[300px] w-[800px]">
+        <h5 id="lineTitle" class="text-gray-400 text-sm mb-2">Ingresos por periodo</h5>
+        <div class="h-full w-full">
+          <canvas id="lineChart" class="h-full w-full"></canvas>
+        </div>
+      </div>
+
+      <!-- Contenedor de botones -->
+      <div class="flex flex-col justify-start space-y-8 mt-4">
+
+        <!-- Grupo: Periodo -->
+        <div class="flex flex-col items-start space-y-2">
+          <span class="text-gray-300 font-medium text-lg">Periodo</span>
+          <div class="flex space-x-3">
+            <button id="btnSemana"
+              class="px-4 py-2 bg-indigo-600 rounded-lg text-white font-semibold text-sm hover:bg-indigo-500 transition">🗓️
+              Semanal</button>
+            <button id="btnMes"
+              class="px-4 py-2 bg-gray-700 rounded-lg text-gray-200 font-semibold text-sm hover:bg-gray-600 transition">📅
+              Mensual</button>
+          </div>
+        </div>
+
+
+
+        <!-- Grupo: Descargar -->
+        <div class="flex flex-col items-start space-y-2">
+          <span class="text-gray-300 font-medium text-lg">Descargar</span>
+          <div class="flex space-x-3">
+            <button id="btnXLSX"
+              class="px-4 py-2 bg-blue-600 rounded-lg text-white font-semibold text-sm hover:bg-blue-500 transition">📊
+              XLSX</button>
+            <button id="btnCSV"
+              class="px-4 py-2 bg-blue-600 rounded-lg text-white font-semibold text-sm hover:bg-blue-500 transition">🗃️
+              CSV</button>
+            <button id="btnPDF"
+              class="px-4 py-2 bg-blue-600 rounded-lg text-white font-semibold text-sm hover:bg-blue-500 transition">📄
+              PDF</button>
+          </div>
+        </div>
+
       </div>
     </div>
+
+
 
   </div>
-</div>
-
-
-
-</div>
 
 
 </div>
 
 
 
-    
+
 
 
 
 <!-- === Estilos del scroll minimalista === -->
 <style>
-.custom-scroll::-webkit-scrollbar { width: 6px; }
-.custom-scroll::-webkit-scrollbar-track { background: #1f2937; border-radius: 3px; }
-.custom-scroll::-webkit-scrollbar-thumb { background-color: #4b5563; border-radius: 3px; }
-.custom-scroll { scrollbar-width: thin; scrollbar-color: #4b5563 #1f2937; }
+  .custom-scroll::-webkit-scrollbar {
+    width: 6px;
+  }
 
-/* --- Layout wrapper para evitar scroll de página --- */
-.chart-root {
-  box-sizing: border-box;
-  height: calc(100vh - 4rem); /* ajusta si el header ocupa más */
-  overflow: hidden;
-  padding: 1.5rem;
-}
-.chart-content {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  overflow: hidden;
-}
+  .custom-scroll::-webkit-scrollbar-track {
+    background: #1f2937;
+    border-radius: 3px;
+  }
 
+  .custom-scroll::-webkit-scrollbar-thumb {
+    background-color: #4b5563;
+    border-radius: 3px;
+  }
+
+  .custom-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: #4b5563 #1f2937;
+  }
+
+  /* --- Layout wrapper para evitar scroll de página --- */
+  .chart-root {
+    box-sizing: border-box;
+    height: calc(100vh - 4rem);
+    /* ajusta si el header ocupa más */
+    overflow: hidden;
+    padding: 1.5rem;
+  }
+
+  .chart-content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    overflow: hidden;
+  }
 </style>
 
 <!-- === Chart.js CDN y JS de gráficos === -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-  const charts = {};
-  let periodo = "semana";
-  let modo = "mejores";
-  const visibleWithoutScroll = 11;
+  document.addEventListener("DOMContentLoaded", () => {
+    const charts = {};
+    let periodo = "semana";
+    const visibleWithoutScroll = 11;
+    const weekdayNames = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
 
-  async function renderGraficas() {
-    try {
-      const resp = await fetch(`{% url 'obtener_datos_reservaciones' %}?periodo=${periodo}&modo=${modo}`);
-      const data = await resp.json();
+    async function renderGraficas() {
+      try {
+        const resp = await fetch(`{% url 'obtener_datos_reservaciones' %}?periodo=${periodo}`);
+        const data = await resp.json();
 
-      // --- Gráfico de Barras ---
-      const barCtx = document.getElementById("barChart").getContext("2d");
-      if (charts.bar) charts.bar.destroy();
-      charts.bar = new Chart(barCtx, {
-        type: "bar",
-        data: {
-          labels: data.por_dia.map(d => d.fecha_reserva),
-          datasets: [{
-            label: `Reservaciones por ${periodo === "semana" ? "día" : "mes"}`,
-            data: data.por_dia.map(d => d.total),
-            backgroundColor: "rgba(99,102,241,0.6)",
-            borderColor: "rgba(99,102,241,1)",
-            borderWidth: 1
-          }]
-        },
-        options: {
-  responsive: true,
-  maintainAspectRatio: false,
-  layout: {
-    padding: {
-      bottom: 16 // separa el eje X del borde inferior
-    }
-  },
-  scales: {
-    x: {
-      ticks: {
-        color: "#cbd5e1",
-        font: {
-          family: "'Inter', sans-serif", // fuente nítida
-          weight: "bold",
-          size: 12
+        // Actualizar títulos visibles según periodo
+        if (periodo === "semana") {
+          document.getElementById("barTitle").innerText = "Número de reservaciones semanalmente";
+          document.getElementById("pieTitle").innerText = "Salones más reservados semanalmente";
+          document.getElementById("lineTitle").innerText = "Ingresos semanalmente";
+        } else {
+          document.getElementById("barTitle").innerText = "Número de reservaciones mensualmente";
+          document.getElementById("pieTitle").innerText = "Salones más reservados mensualmente";
+          document.getElementById("lineTitle").innerText = "Ingresos mensualmente";
         }
-      },
-      grid: { color: "rgba(255,255,255,0.05)" },
-      offset: true // agrega espacio a los bordes del eje X
-    },
-    y: {
-      ticks: {
-        color: "#cbd5e1",
-        stepSize: 2, // eje Y de 2 en 2
-        font: {
-          family: "'Inter', sans-serif", // fuente nítida
-          weight: "bold",
-          size: 12
+
+        // --- Gráfico de Barras ---
+        const barCtx = document.getElementById("barChart").getContext("2d");
+        if (charts.bar) charts.bar.destroy();
+
+        let barLabels, barValues;
+
+        if (periodo === "semana") {
+            // data.por_dia debe venir con etiquetas Lunes..Domingo (ver backend)
+            barLabels = data.por_dia.map(d => d.fecha_reserva);
+            barValues = data.por_dia.map(d => d.total);
+        } else {
+            barLabels = ["1-5","6-10","11-15","16-20","21-25","26-31"];
+            barValues = data.por_dia.map(d => d.total);
         }
-      },
-      grid: { color: "rgba(255,255,255,0.05)" }
-    }
-  }
-}
 
-      });
+        charts.bar = new Chart(barCtx, {
+            type: "bar",
+            data: {
+                labels: barLabels,
+                datasets: [{
+                    label: periodo === "semana" ? "Número de reservaciones semanalmente" : "Número de reservaciones mensualmente",
+                    data: barValues,
+                    backgroundColor: "rgba(99,102,241,0.6)",
+                    borderColor: "rgba(99,102,241,1)",
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                layout: { padding: { bottom: 16 } },
+                scales: {
+                    x: {
+                        ticks: { color: "#cbd5e1", font: { family: "'Inter', sans-serif", weight: "bold", size: 12 } },
+                        grid: { color: "rgba(255,255,255,0.05)" },
+                        offset: true
+                    },
+                    y: {
+                        ticks: { color: "#cbd5e1", stepSize: 2, font: { family: "'Inter', sans-serif", weight: "bold", size: 12 } },
+                        grid: { color: "rgba(255,255,255,0.05)" }
+                    }
+                }
+            }
+        });
 
-      // --- Gráfico de Pastel ---
-      const pieCtx = document.getElementById("pieChart").getContext("2d");
-      if (charts.pie) charts.pie.destroy();
+        // --- Gráfico de Pastel ---
+        const pieCtx = document.getElementById("pieChart").getContext("2d");
+        if (charts.pie) charts.pie.destroy();
 
-      const salonLabels = data.por_salon.map(s =>
-        s.salon__nombre.replace(/sal[oó]n\s*/i, '').replace(/\s*\d+$/, '')
-      );
-      const salonTotals = data.por_salon.map(s => s.total);
+        const salonLabels = data.por_salon.map(s =>
+          s.salon__nombre.replace(/sal[oó]n\s*/i, '').replace(/\s*\d+$/, '')
+        );
+        const salonTotals = data.por_salon.map(s => s.total);
 
-      charts.pie = new Chart(pieCtx, {
-        type: "pie",
-        data: {
-          labels: salonLabels,
-          datasets: [{
-            data: salonTotals,
-            backgroundColor: [
-              "#6366F1", "#22C55E", "#EAB308", "#F97316", "#EF4444",
-              "#3B82F6", "#A855F7", "#10B981", "#F59E0B", "#8B5CF6",
-              "#EC4899", "#F43F5E", "#3B82F6", "#6366F1", "#22C55E",
-              "#F97316", "#EF4444", "#A855F7", "#10B981", "#F59E0B",
-              "#8B5CF6", "#EC4899", "#F43F5E", "#3B82F6", "#6366F1"
-            ],
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false }, title: { display: false } }
-        }
-      });
+        charts.pie = new Chart(pieCtx, {
+          type: "pie",
+          data: {
+            labels: salonLabels,
+            datasets: [{
+              data: salonTotals,
+              backgroundColor: [
+                "#6366F1", "#22C55E", "#EAB308", "#F97316", "#EF4444",
+                "#3B82F6", "#A855F7", "#10B981", "#F59E0B", "#8B5CF6",
+                "#EC4899", "#F43F5E", "#3B82F6", "#6366F1", "#22C55E",
+                "#F97316", "#EF4444", "#A855F7", "#10B981", "#F59E0B",
+                "#8B5CF6", "#EC4899", "#F43F5E", "#3B82F6", "#6366F1"
+              ],
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false }, title: { display: false } }
+          }
+        });
 
-      // --- Leyenda scrollable funcional ---
-const legendContainer = document.getElementById("pieLegendContainer");
-legendContainer.innerHTML = "";
-legendContainer.style.display = "block";  // importante
-legendContainer.style.maxHeight = "12rem"; // altura fija para scroll
-legendContainer.style.overflowY = "auto";  // scroll vertical
-legendContainer.style.paddingRight = "0.5rem"; 
+        // --- Leyenda scrollable funcional ---
+        const legendContainer = document.getElementById("pieLegendContainer");
+        legendContainer.innerHTML = "";
+        legendContainer.style.display = "block";
+        legendContainer.style.maxHeight = "12rem";
+        legendContainer.style.overflowY = "auto";
+        legendContainer.style.paddingRight = "0.5rem";
 
-// Crear columnas verticales
-const itemsPerColumn = visibleWithoutScroll;
-const numColumns = Math.ceil(salonLabels.length / itemsPerColumn);
+        const itemsPerColumn = visibleWithoutScroll;
+        const numColumns = Math.ceil(salonLabels.length / itemsPerColumn);
 
-for (let c = 0; c < numColumns; c++) {
-  const col = document.createElement("ul");
-  col.style.listStyle = "none";
-  col.style.margin = "0";
-  col.style.padding = "0";
-  col.style.display = "inline-block"; // <- inline-block para columnas
-  col.style.verticalAlign = "top";    // importante para alinear arriba
-  col.style.marginRight = "1rem";     // espacio entre columnas
+        for (let c = 0; c < numColumns; c++) {
+          const col = document.createElement("ul");
+          col.style.listStyle = "none";
+          col.style.margin = "0";
+          col.style.padding = "0";
+          col.style.display = "inline-block";
+          col.style.verticalAlign = "top";
+          col.style.marginRight = "1rem";
 
-  const start = c * itemsPerColumn;
-  const end = start + itemsPerColumn;
+          const start = c * itemsPerColumn;
+          const end = start + itemsPerColumn;
 
-  salonLabels.slice(start, end).forEach((label, i) => {
-    const li = document.createElement("li");
-    li.style.display = "flex";
-    li.style.alignItems = "center";
-    li.style.gap = "0.5rem";
-    li.innerHTML = `<span style="background-color:${charts.pie.data.datasets[0].backgroundColor[start+i]};width:12px;height:12px;display:inline-block;border-radius:2px;"></span>
+          salonLabels.slice(start, end).forEach((label, i) => {
+            const li = document.createElement("li");
+            li.style.display = "flex";
+            li.style.alignItems = "center";
+            li.style.gap = "0.5rem";
+            li.innerHTML = `<span style="background-color:${charts.pie.data.datasets[0].backgroundColor[start + i]};width:12px;height:12px;display:inline-block;border-radius:2px;"></span>
                     <span style="color:#e5e7eb;font-size:0.75rem;">${label}</span>`;
-    col.appendChild(li);
-  });
+            col.appendChild(li);
+          });
 
-  legendContainer.appendChild(col);
-}
+          legendContainer.appendChild(col);
+        }
+
+        // --- Gráfico de Líneas (Ingresos) ---
+        const lineCtx = document.getElementById("lineChart").getContext("2d");
+        if (charts.line) charts.line.destroy();
+
+        let lineLabels, lineValues;
+
+        if (periodo === "semana") {
+            // Queremos Lunes..Domingo con totales de ingresos por día (llenar con ceros si falta)
+            lineLabels = weekdayNames.slice();
+            const valores = [0,0,0,0,0,0,0];
+
+            // data.ingresos_por_dia expected: { fecha_reserva: "YYYY-MM-DD" (o ISO), total: number }
+            for (const item of data.ingresos_por_dia) {
+                // intentar parsear fecha; si ya es etiqueta, intentar mapear por nombre
+                let diaIndex = null;
+                if (item.fecha_reserva && !isNaN(Date.parse(item.fecha_reserva))) {
+                    const d = new Date(item.fecha_reserva);
+                    // JS getDay(): 0=Domingo..6=Sábado -> queremos 0=Lunes..6=Domingo
+                    diaIndex = (d.getDay() + 6) % 7;
+                } else {
+                    // si backend devolvió nombre, buscar índice directo
+                    const idx = weekdayNames.findIndex(n => n.toLowerCase().startsWith(String(item.fecha_reserva).toLowerCase()));
+                    if (idx >= 0) diaIndex = idx;
+                }
+                if (diaIndex !== null && !isNaN(Number(item.total))) {
+                    valores[diaIndex] += Number(item.total);
+                }
+            }
+            lineValues = valores;
+        } else {
+            // Mensual: mantener ejes por día del mes (backend devuelve lista por día/rango)
+            lineLabels = data.ingresos_por_dia.map(d => d.fecha_reserva);
+            lineValues = data.ingresos_por_dia.map(d => d.total);
+        }
+
+        charts.line = new Chart(lineCtx, {
+          type: "line",
+          data: {
+            labels: lineLabels,
+            datasets: [{
+              label: periodo === "semana" ? "Ingresos semanalmente" : "Ingresos mensualmente",
+              data: lineValues,
+              borderColor: "#EAB308",
+              backgroundColor: "rgba(234,179,8,0.2)",
+              fill: true,
+              tension: 0.3
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: { padding: { bottom: 16, left: 16, right: 16, top: 16 } },
+            scales: {
+              x: {
+                ticks: { color: "#cbd5e1", font: { family: "'Inter', sans-serif", weight: "bold", size: 12 } },
+                grid: { color: "rgba(255,255,255,0.05)" },
+                offset: true
+              },
+              y: {
+                ticks: { color: "#cbd5e1", font: { family: "'Inter', sans-serif", weight: "bold", size: 12 } },
+                grid: { color: "rgba(255,255,255,0.05)" }
+              }
+            }
+          }
+        });
 
 
-      // --- Gráfico de Líneas ---
-      const lineCtx = document.getElementById("lineChart").getContext("2d");
-if (charts.line) charts.line.destroy();
-charts.line = new Chart(lineCtx, {
-  type: "line",
-  data: {
-    labels: data.ingresos_por_dia.map(d => d.fecha_reserva),
-    datasets: [{
-      label: `Ingresos (${modo})`,
-      data: data.ingresos_por_dia.map(d => d.total),
-      borderColor: "#EAB308",
-      backgroundColor: "rgba(234,179,8,0.2)",
-      fill: true,
-      tension: 0.3
-    }]
-  },
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    layout: { padding: { bottom: 16, left: 16, right: 16, top: 16 } },
-    scales: {
-      x: {
-        ticks: {
-          color: "#cbd5e1",
-          font: { family: "'Inter', sans-serif", weight: "bold", size: 12 }
-        },
-        grid: { color: "rgba(255,255,255,0.05)" },
-        offset: true
-      },
-      y: {
-        ticks: {
-          color: "#cbd5e1",
-          font: { family: "'Inter', sans-serif", weight: "bold", size: 12 }
-        },
-        grid: { color: "rgba(255,255,255,0.05)" }
+      } catch (err) {
+        console.error("Error al cargar las gráficas:", err);
       }
     }
-  }
-});
+
+    renderGraficas();
+
+    // --- Botones periodo ---
+    document.getElementById("btnSemana").addEventListener("click", () => { periodo = "semana"; actualizarBotonesPeriodo(); renderGraficas(); });
+    document.getElementById("btnMes").addEventListener("click", () => { periodo = "mes"; actualizarBotonesPeriodo(); renderGraficas(); });
 
 
-    } catch (err) {
-      console.error("Error al cargar las gráficas:", err);
+    // --- Función para obtener las imágenes de los charts ---
+    function getChartImages() {
+      return {
+        bar: charts.bar.toBase64Image(),
+        pie: charts.pie.toBase64Image(),
+        line: charts.line.toBase64Image()
+      };
     }
-  }
 
-  renderGraficas();
-
-  // --- Botones periodo ---
-  document.getElementById("btnSemana").addEventListener("click", () => { periodo="semana"; actualizarBotonesPeriodo(); renderGraficas(); });
-  document.getElementById("btnMes").addEventListener("click", () => { periodo="mes"; actualizarBotonesPeriodo(); renderGraficas(); });
-
-  // --- Botones modo ---
-  document.getElementById("btnMejores").addEventListener("click", () => { modo="mejores"; actualizarBotonesModo(); renderGraficas(); });
-  document.getElementById("btnPeores").addEventListener("click", () => { modo="peores"; actualizarBotonesModo(); renderGraficas(); });
-
-  // --- Función para obtener las imágenes de los charts ---
-function getChartImages() {
-  return {
-    bar: charts.bar.toBase64Image(),
-    pie: charts.pie.toBase64Image(),
-    line: charts.line.toBase64Image()
-  };
-}
-
-// --- Botón PDF ---
-document.getElementById("btnPDF").addEventListener("click", async () => {
-  const images = getChartImages();
-
-  const formData = new FormData();
-  formData.append("bar", images.bar);
-  formData.append("pie", images.pie);
-  formData.append("line", images.line);
-
-  const response = await fetch("{% url 'descargar_reportes' 'pdf' %}", {
-    method: "POST",
-    body: formData,
-    headers: {
-      "X-CSRFToken": "{{ csrf_token }}" // importante en Django
+    // Helper CSRF
+    function getCookie(name) {
+      const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+      return v ? v.pop() : '';
     }
+
+    // --- Botón PDF: enviar FormData con bar/pie/line ---
+    document.getElementById("btnPDF").addEventListener("click", async () => {
+      try {
+        const images = getChartImages();
+        const formData = new FormData();
+        // Enviar con las claves que export_pdf espera
+        formData.append("reservaciones", images.bar);
+        formData.append("salones_mas_reservados", images.pie);
+        formData.append("ingresos", images.line);
+        formData.append("fecha", new Date().toLocaleString());
+        formData.append("charts", "Reservaciones,Salones mas reservados,Ingresos");
+        formData.append("periodo", periodo);  // <-- AGREGAR ESTO
+
+        const response = await fetch("{% url 'descargar_reportes' 'pdf' %}", {
+          method: "POST",
+          body: formData,
+          credentials: "same-origin",
+          headers: { "X-CSRFToken": getCookie("csrftoken") }
+        });
+
+        if (!response.ok) {
+          const txt = await response.text();
+          console.error("Error al generar PDF:", response.status, txt);
+          alert("Error al generar PDF: " + txt);
+          return;
+        }
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "reservaciones_periodo.pdf";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+      } catch (err) {
+        console.error("Error en descarga PDF:", err);
+        alert("Error al generar PDF");
+      }
+    });
+
+
+
+
+    function actualizarBotonesPeriodo() {
+      const semana = document.getElementById("btnSemana");
+      const mes = document.getElementById("btnMes");
+      if (periodo === "semana") { semana.classList.replace("bg-gray-700", "bg-indigo-600"); mes.classList.replace("bg-indigo-600", "bg-gray-700"); }
+      else { mes.classList.replace("bg-gray-700", "bg-indigo-600"); semana.classList.replace("bg-indigo-600", "bg-gray-700"); }
+    }
+
+
+
+    document.getElementById("btnCSV").addEventListener("click", () => {
+      window.location.href =
+        "{% url 'descargar_reportes' 'csv' %}" + "?periodo=" + periodo;
+    });
+
+    document.getElementById("btnXLSX").addEventListener("click", () => {
+      window.location.href =
+        "{% url 'descargar_reportes' 'xlsx' %}" + "?periodo=" + periodo;
+    });
+
+
+
+
   });
-
-  if (response.ok) {
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "dashboard.pdf";
-    a.click();
-    window.URL.revokeObjectURL(url);
-  } else {
-    console.error("Error al generar PDF:", response.statusText);
-  }
-});
-
-
-
-
-  function actualizarBotonesPeriodo() {
-    const semana = document.getElementById("btnSemana");
-    const mes = document.getElementById("btnMes");
-    if (periodo==="semana") { semana.classList.replace("bg-gray-700","bg-indigo-600"); mes.classList.replace("bg-indigo-600","bg-gray-700"); }
-    else { mes.classList.replace("bg-gray-700","bg-indigo-600"); semana.classList.replace("bg-indigo-600","bg-gray-700"); }
-  }
-
-  function actualizarBotonesModo() {
-    const mejores = document.getElementById("btnMejores");
-    const peores = document.getElementById("btnPeores");
-    if (modo==="mejores") { mejores.classList.replace("bg-gray-700","bg-green-600"); peores.classList.replace("bg-green-600","bg-gray-700"); }
-    else { peores.classList.replace("bg-gray-700","bg-green-600"); mejores.classList.replace("bg-green-600","bg-gray-700"); }
-  }
-
-  // --- Botón CSV ---
-document.getElementById("btnCSV").addEventListener("click", () => {
-    window.location.href = "{% url 'descargar_reportes' 'csv' %}";
-});
-
-// --- Botón XLSX ---
-document.getElementById("btnXLSX").addEventListener("click", () => {
-    window.location.href = "{% url 'descargar_reportes' 'xlsx' %}";
-});
-
-
-  
-});
 </script>
 
 <style>
   /* Quita el scroll completamente */
-  html, body {
+  html,
+  body {
     overflow: hidden !important;
     height: 100%;
   }
@@ -406,8 +467,6 @@ document.getElementById("btnXLSX").addEventListener("click", () => {
     max-width: 100%;
     height: auto;
   }
-
-
 </style>
 
 

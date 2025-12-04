@@ -5,6 +5,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.db.models import Count, Sum
+from django.utils.timezone import now
 from django.db import models
 from django.utils import timezone
 from django.utils.timezone import make_aware
@@ -13,87 +14,71 @@ from myapp.models import Salon, Reservacion
 
 # === Charts: Reservaciones ===
 def obtener_datos_reservaciones(request):
-    hoy = timezone.now().date()
     periodo = request.GET.get("periodo", "semana")
-    modo = request.GET.get("modo", "mejores")
 
-    if periodo == "mes":
-        inicio_mes = hoy.replace(day=1)
-        fin_mes = hoy.replace(day=calendar.monthrange(hoy.year, hoy.month)[1])
-        fecha_inicio, fecha_fin = inicio_mes, fin_mes
-    else:
+    # BAR CHART: por_dia debe ser el conteo de reservaciones (Count)
+    # LINE CHART: ingresos_por_dia debe ser la suma de precio_total (Sum)
+    if periodo == "semana":
+        hoy = now().date()
         inicio_semana = hoy - timedelta(days=hoy.weekday())
-        fin_semana = inicio_semana + timedelta(days=6)
-        fecha_inicio, fecha_fin = inicio_semana, fin_semana
+        dias_nombres = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"]
 
-    reservaciones = Reservacion.objects.filter(fecha_reserva__range=[fecha_inicio, fecha_fin])
+        # Conteos por día (Count)
+        qs_counts = (
+            Reservacion.objects
+            .filter(fecha_reserva__range=[inicio_semana, inicio_semana + timedelta(days=6)])
+            .values("fecha_reserva")
+            .annotate(total=Count("id"))
+            .order_by("fecha_reserva")
+        )
+        counts_map = {r["fecha_reserva"].isoformat(): int(r["total"] or 0) for r in qs_counts}
 
-    # Por día
-    if periodo == "semana":
-        dias_semana = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"]
-        base_dias = {d: 0 for d in dias_semana}
-        for item in reservaciones.values("fecha_reserva").annotate(total=Count("id")):
-            dia = dias_semana[item["fecha_reserva"].weekday()]
-            base_dias[dia] += item["total"]
-        por_dia = [{"fecha_reserva": k, "total": v} for k, v in base_dias.items()]
-    else:
-        total_dias = calendar.monthrange(hoy.year, hoy.month)[1]
-        rangos = {}
-        for start in range(1, total_dias + 1, 5):
-            end = min(start + 4, total_dias)
-            etiqueta = f"{start}-{end}"
-            rangos[etiqueta] = 0
-        for item in reservaciones.values("fecha_reserva").annotate(total=Count("id")):
-            dia = item["fecha_reserva"].day
-            rango_inicio = ((dia - 1) // 5) * 5 + 1
-            rango_fin = min(rango_inicio + 4, total_dias)
-            etiqueta = f"{rango_inicio}-{rango_fin}"
-            rangos[etiqueta] += item["total"]
-        por_dia = [{"fecha_reserva": k, "total": v} for k, v in rangos.items()]
+        # Ingresos por día (Sum)
+        qs_sums = (
+            Reservacion.objects
+            .filter(fecha_reserva__range=[inicio_semana, inicio_semana + timedelta(days=6)])
+            .values("fecha_reserva")
+            .annotate(total=Sum("precio_total"))
+            .order_by("fecha_reserva")
+        )
+        sums_map = {r["fecha_reserva"].isoformat(): float(r["total"] or 0.0) for r in qs_sums}
 
-    # Ingresos por día
-    if periodo == "semana":
-        base_dias_ingresos = {d: 0 for d in dias_semana}
-        for item in reservaciones.values("fecha_reserva").annotate(total=Sum("precio_total")):
-            dia = dias_semana[item["fecha_reserva"].weekday()]
-            base_dias_ingresos[dia] += item["total"]
-        ingresos_por_dia = [{"fecha_reserva": k, "total": v} for k, v in base_dias_ingresos.items()]
-    else:
-        rangos_ingresos = {k: 0 for k in rangos.keys()}
-        for item in reservaciones.values("fecha_reserva").annotate(total=Sum("precio_total")):
-            dia = item["fecha_reserva"].day
-            rango_inicio = ((dia - 1) // 5) * 5 + 1
-            rango_fin = min(rango_inicio + 4, total_dias)
-            etiqueta = f"{rango_inicio}-{rango_fin}"
-            rangos_ingresos[etiqueta] += item["total"]
-        ingresos_por_dia = [{"fecha_reserva": k, "total": v} for k, v in rangos_ingresos.items()]
+        por_dia = []
+        ingresos_por_dia = []
+        for i in range(7):
+            dia = inicio_semana + timedelta(days=i)
+            iso = dia.isoformat()
+            por_dia.append({"fecha_reserva": dias_nombres[i], "total": counts_map.get(iso, 0)})
+            ingresos_por_dia.append({"fecha_reserva": dias_nombres[i], "total": sums_map.get(iso, 0.0)})
 
-    # Por salón
-    por_salon = list(
-        reservaciones.values("salon__nombre").annotate(total=Count("id")).order_by("-total")
-    )
+    elif periodo == "mes":
+        rangos = [(1,5), (6,10), (11,15), (16,20), (21,25), (26,31)]
+        mes_actual = now().month
+        año_actual = now().year
 
-    # Por estado
-    por_estado = list(
-        reservaciones.values("estado").annotate(total=Count("id")).order_by("-total")
-    )
+        por_dia = []
+        ingresos_por_dia = []
+        for inicio_d, fin_d in rangos:
+            qs_range = Reservacion.objects.filter(
+                fecha_reserva__year=año_actual,
+                fecha_reserva__month=mes_actual,
+                fecha_reserva__day__gte=inicio_d,
+                fecha_reserva__day__lte=fin_d
+            )
+            total_count = qs_range.aggregate(total=Count("id"))["total"] or 0
+            total_sum = qs_range.aggregate(total=Sum("precio_total"))["total"] or 0.0
+            label = f"{inicio_d}-{fin_d}"
+            por_dia.append({"fecha_reserva": label, "total": int(total_count)})
+            ingresos_por_dia.append({"fecha_reserva": label, "total": float(total_sum)})
 
-    # Modo peores
-    if modo == "peores":
-        por_dia.reverse()
-        por_estado.reverse()
-        ingresos_por_dia.reverse()
+    # Salones más reservados (sigue igual, counts)
+    por_salon = Reservacion.objects.values("salon__nombre").annotate(total=Count("id")).order_by("-total")[:10]
 
-    data = {
-        "por_dia": por_dia,
-        "por_salon": por_salon,
-        "por_estado": por_estado,
-        "ingresos_por_dia": ingresos_por_dia,
-        "periodo": periodo,
-        "modo": modo,
-        "rango": f"{fecha_inicio} → {fecha_fin}",
-    }
-    return JsonResponse(data)
+    return JsonResponse({
+        "por_dia": por_dia,                 # para el gráfico de barras (conteos)
+        "por_salon": list(por_salon),
+        "ingresos_por_dia": ingresos_por_dia,  # para el gráfico de ingresos (montos)
+    })
 
 
 # === Charts: Usuarios ===

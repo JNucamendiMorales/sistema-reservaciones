@@ -193,6 +193,9 @@ urlpatterns = [
     path('descargar/csv/', export_charts.descargar_csv, name='descargar_csv'),
     path('descargar/xlsx/', export_charts.descargar_xlsx, name='descargar_xlsx'),
     path('descargar/pdf/', export_charts.descargar_pdf, name='descargar_pdf'),
+    
+    # NUEVO — RESERVACIONES SEMANAL
+    path('descargar/periodo/', export_charts.descargar_reservaciones_periodo, name='descargar_reservaciones_periodo'),
 
     # ======================================================
     # ===================== DRF ROUTER =====================
