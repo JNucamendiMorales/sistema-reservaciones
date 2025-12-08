@@ -519,12 +519,16 @@ def reservacion_resumen_view(request, reserva_id):
     
     # Calcular subtotal extras
     subtotal_extras = sum(extra.precio for extra in reserva.servicios_extra.all())
+    
+    # Obtener descuento y código de la sesión
+    descuento_aplicado = Decimal(str(request.session.get('descuento_aplicado', 0)))
+    codigo_ingresado = request.session.get('codigo_ingresado', '')
 
     return render(request, 'theme/resumen_reserva.html', {
         'reserva': reserva,
-        'total_final': request.session.get('total_final'),
-        'descuento_aplicado': request.session.get('descuento_aplicado'),
-        'codigo_ingresado': request.session.get('codigo_ingresado'),
+        'total_final': reserva.precio_total,
+        'descuento_aplicado': descuento_aplicado,
+        'codigo_ingresado': codigo_ingresado,
     })
 
 
@@ -541,8 +545,10 @@ def mis_reservaciones(request):
 
 @login_required
 def ver_mi_reservacion(request, reserva_id):
-    reserva = get_object_or_404(Reservacion, id=reserva_id, usuario=request.user)
-    return render(request, 'theme/mi_reservacion.html', {'reserva': reserva})
+    reservacion = get_object_or_404(Reservacion, id=reserva_id, usuario=request.user)
+    return render(request, 'theme/ver_mi_reservacion.html', {
+        'reservacion': reservacion
+    })
 
 
 @login_required
