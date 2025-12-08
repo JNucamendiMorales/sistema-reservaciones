@@ -1,19 +1,48 @@
 import csv
-from datetime import datetime
+import json
+import base64
+import traceback
+import pytz
+from datetime import datetime, timedelta
 from django.http import HttpResponse
 from django.db.models import Count, Sum
 from django.utils import timezone
-from datetime import timedelta
+from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required  # AGREGAR ESTO
 from myapp.models import Salon, Reservacion
-from myapp.Descargas.export_charts import (
-    exportar_csv, 
-    exportar_pdf, 
-    exportar_xlsx_nativo,
-    exportar_xlsx_reservaciones_semanal,
-    exportar_xlsx_reservaciones_mensual,
+from myapp.Descargas.export_csv import (
+    exportar_csv,
     exportar_csv_reservaciones_semanal,
-    exportar_csv_reservaciones_mensual
+    exportar_csv_reservaciones_mensual,
+    exportar_csv_usuarios_semanal,
+    exportar_csv_usuarios_mensual,
+    exportar_csv_salones_semanal,       # NEW
+    exportar_csv_salones_mensual        # NEW
 )
+from myapp.Descargas.export_pdf import exportar_pdf, exportar_pdf_usuarios_semanal, exportar_pdf_usuarios_mensual
+
+# reemplazar importaciones directas problemáticas por import del módulo y mapeo seguro
+
+# OLD imports (elimínalos o coméntalos)
+# from myapp.Descargas.export_xlsx import (
+#     exportar_xlsx_usuarios_semanal,
+#     exportar_xlsx_usuarios_mensual,
+#     exportar_xlsx_reservaciones_semanal,
+#     exportar_xlsx_reservaciones_mensual,
+#     exportar_xlsx_salones_semanal,
+#     exportar_xlsx_salones_mensual
+# )
+
+# NEW: importar el módulo y mapear funciones si existen
+import importlib
+export_xlsx = importlib.import_module("myapp.Descargas.export_xlsx")
+
+exportar_xlsx_usuarios_semanal = getattr(export_xlsx, "exportar_xlsx_usuarios_semanal", None)
+exportar_xlsx_usuarios_mensual = getattr(export_xlsx, "exportar_xlsx_usuarios_mensual", None)
+exportar_xlsx_reservaciones_semanal = getattr(export_xlsx, "exportar_xlsx_reservaciones_semanal", None)
+exportar_xlsx_reservaciones_mensual = getattr(export_xlsx, "exportar_xlsx_reservaciones_mensual", None)
+exportar_xlsx_salones_semanal = getattr(export_xlsx, "exportar_xlsx_salones_semanal", None)
+exportar_xlsx_salones_mensual = getattr(export_xlsx, "exportar_xlsx_salones_mensual", None)
 
 
 def dashboard_export(request):
@@ -37,213 +66,202 @@ def dashboard_export(request):
     return response
 
 
+@login_required
 def descargar_reportes(request, formato):
     periodo = request.GET.get("periodo", "semana")
-    fecha_descarga = timezone.now().strftime("%d/%m/%Y %H:%M:%S")
+    tipo = request.GET.get("tipo", request.POST.get("tipo", "reservaciones"))
+    
+    tz = pytz.timezone('America/Mexico_City')
+    now_local = timezone.now().astimezone(tz)
+    fecha_descarga = now_local.strftime("%d/%m/%Y %H:%M:%S")
 
-    # Exportar CSV con datos reales según periodo
+    # === CSV ===
     if formato == "csv":
-        if periodo == "semana":
-            return exportar_csv_reservaciones_semanal(fecha_descarga)
-        elif periodo == "mes":
-            return exportar_csv_reservaciones_mensual(fecha_descarga)
+        if tipo == "usuarios":
+            return exportar_csv_usuarios_semanal(fecha_descarga) if periodo == "semana" else exportar_csv_usuarios_mensual(fecha_descarga)
+        elif tipo == "salones":
+            return exportar_csv_salones_semanal(fecha_descarga) if periodo == "semana" else exportar_csv_salones_mensual(fecha_descarga)
+        else:
+            return exportar_csv_reservaciones_semanal(fecha_descarga) if periodo == "semana" else exportar_csv_reservaciones_mensual(fecha_descarga)
 
-    # Exportar XLSX con datos reales según periodo
+    # === XLSX ===
     if formato == "xlsx":
+        if tipo == "usuarios":
+            return exportar_xlsx_usuarios_semanal(fecha_descarga) if periodo == "semana" else exportar_xlsx_usuarios_mensual(fecha_descarga)
+        elif tipo == "salones":
+            return exportar_xlsx_salones_semanal(fecha_descarga=fecha_descarga) if periodo == "semana" else exportar_xlsx_salones_mensual(fecha_descarga=fecha_descarga)
+        else:
+            return exportar_xlsx_reservaciones_semanal(fecha_descarga) if periodo == "semana" else exportar_xlsx_reservaciones_mensual(fecha_descarga)
+
+    # === PDF ===
+    if formato != "pdf":
+        return HttpResponse("Formato no válido", status=400)
+
+    if request.method != "POST":
+        return HttpResponse("Use POST para generar PDF.", status=405)
+
+    # Usuarios PDF
+    if tipo == "usuarios":
+        return exportar_pdf_usuarios_semanal(fecha_descarga=fecha_descarga) if periodo == "semana" else exportar_pdf_usuarios_mensual(fecha_descarga=fecha_descarga)
+
+    # Salones PDF (usar exportar_pdf genérica como Reservaciones)
+    elif tipo == "salones":
+        from myapp.Descargas.export_pdf import exportar_pdf
+        import io as io_module
+        import matplotlib
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+        import calendar
+
+        tz = pytz.timezone('America/Mexico_City')
+        ref_date = timezone.localtime(timezone.now()).date()
+        
         if periodo == "semana":
-            return exportar_xlsx_reservaciones_semanal(fecha_descarga)
-        elif periodo == "mes":
-            return exportar_xlsx_reservaciones_mensual(fecha_descarga)
-
-    # Para PDF usar datos genéricos (el resto del código...)
-    charts_data = [
-        {
-            "nombre": "Reservaciones Mensuales",
-            "datos": [
-                {"Etiqueta": "Enero", "Valor": 45},
-                {"Etiqueta": "Febrero", "Valor": 60},
-                {"Etiqueta": "Marzo", "Valor": 50},
-            ],
-        },
-        {
-            "nombre": "Uso de Salones",
-            "datos": [
-                {"Etiqueta": "Salón A", "Valor": 80},
-                {"Etiqueta": "Salón B", "Valor": 55},
-                {"Etiqueta": "Salón C", "Valor": 90},
-            ],
-        },
-        {
-            "nombre": "Usuarios Activos",
-            "datos": [
-                {"Etiqueta": "Admin", "Valor": 3},
-                {"Etiqueta": "Clientes", "Valor": 25},
-                {"Etiqueta": "Invitados", "Valor": 12},
-            ],
-        },
-    ]
-
-    if formato == "csv":
-        return exportar_csv(charts_data, fecha_descarga)
-
-    elif formato == "pdf":
-        # Solo POST permitido
-        if request.method != "POST":
-            return HttpResponse("Use POST para generar PDF con imágenes.", status=405)
-
-        import json
-        import base64
-
-        # debug
-        print("descargar_pdf - request.POST keys:", list(request.POST.keys()))
-        print("descargar_pdf - request.FILES keys:", list(request.FILES.keys()))
+            inicio = ref_date - timedelta(days=ref_date.weekday())
+            fin = inicio + timedelta(days=6)
+        else:
+            # MENSUAL: garantizar que cubre el mes completo
+            inicio = ref_date.replace(day=1)
+            last_day = calendar.monthrange(ref_date.year, ref_date.month)[1]
+            fin = ref_date.replace(day=last_day)
 
         images = {}
-
-        # 1) Intentar leer JSON body (útil cuando frontend envía application/json)
+        
         try:
-            if request.body:
-                parsed = json.loads(request.body.decode("utf-8"))
-                if isinstance(parsed, dict):
-                    raw_imgs = parsed.get("images", parsed)
-                    if isinstance(raw_imgs, dict):
-                        for k, v in raw_imgs.items():
-                            if v:
-                                images[k] = v
-        except Exception:
-            pass
+            # Top 5 calificación
+            top_cal = list(Salon.objects.values("nombre", "calificacion").order_by("-calificacion")[:5])
+            labels_cal = [s["nombre"] for s in top_cal]
+            vals_cal = [float(s.get("calificacion") or 0.0) for s in top_cal]
+            
+            fig, ax = plt.subplots(figsize=(8,4), facecolor="#0F172A")
+            ax.set_facecolor("#1E293B")
+            ax.bar(labels_cal, vals_cal, color="#6366F1", edgecolor="#475569", linewidth=1.5)
+            ax.set_title("Salones - Calificación", color="#E2E8F0", fontweight="bold")
+            ax.tick_params(colors="#E2E8F0", rotation=30)
+            ax.spines['bottom'].set_color("#475569")
+            ax.spines['left'].set_color("#475569")
+            ax.spines['top'].set_visible(False)
+            ax.spines['right'].set_visible(False)
+            ax.grid(True, alpha=0.2, color="#475569", linestyle="--", axis='y')
+            buf_cal = io_module.BytesIO()
+            fig.savefig(buf_cal, format="png", bbox_inches="tight", dpi=150, facecolor="#0F172A")
+            plt.close(fig)
+            buf_cal.seek(0)
+            img_cal_b64 = base64.b64encode(buf_cal.getvalue()).decode("ascii")
+            images["calificacion"] = "data:image/png;base64," + img_cal_b64
 
-        # 2) Leer campo 'images' en form-data si existe (string JSON)
-        if not images and request.POST.get("images"):
-            try:
-                parsed = json.loads(request.POST.get("images"))
-                if isinstance(parsed, dict):
-                    for k, v in parsed.items():
-                        if v:
-                            images[k] = v
-            except Exception:
-                pass
+            # Top 5 precios
+            top_price = list(Salon.objects.values("nombre","precio").order_by("-precio")[:5])
+            labels_price = [s["nombre"] for s in top_price]
+            vals_price = [float(s.get("precio") or 0.0) for s in top_price]
+            
+            fig, ax = plt.subplots(figsize=(8,4), facecolor="#0F172A")
+            ax.set_facecolor("#1E293B")
+            ax.bar(labels_price, vals_price, color="#3B82F6", edgecolor="#475569", linewidth=1.5)
+            ax.set_title("Salones - Precio (MXN)", color="#E2E8F0", fontweight="bold")
+            ax.tick_params(colors="#E2E8F0", rotation=30)
+            ax.spines['bottom'].set_color("#475569")
+            ax.spines['left'].set_color("#475569")
+            ax.spines['top'].set_visible(False)
+            ax.spines['right'].set_visible(False)
+            ax.grid(True, alpha=0.2, color="#475569", linestyle="--", axis='y')
+            buf_price = io_module.BytesIO()
+            fig.savefig(buf_price, format="png", bbox_inches="tight", dpi=150, facecolor="#0F172A")
+            plt.close(fig)
+            buf_price.seek(0)
+            img_price_b64 = base64.b64encode(buf_price.getvalue()).decode("ascii")
+            images["precios"] = "data:image/png;base64," + img_price_b64
 
-        # 3) Leer campos individuales en form-data
-        for k in list(request.POST.keys()):
-            if k == "images":
-                continue
-            v = request.POST.get(k)
-            if v:
-                images[k] = v
+            # Top 5 ingresos (TIMEZONE-AWARE)
+            field_type = Reservacion._meta.get_field('fecha_reserva').get_internal_type()
+            
+            if field_type == "DateTimeField":
+                # Convertir a datetime aware
+                start_dt = datetime.combine(inicio, datetime.min.time())
+                end_dt = datetime.combine(fin, datetime.max.time())
+                
+                # Localizar si no está localizado
+                if start_dt.tzinfo is None:
+                    start_dt = tz.localize(start_dt)
+                if end_dt.tzinfo is None:
+                    end_dt = tz.localize(end_dt)
+                    
+                qs_ing = Reservacion.objects.filter(fecha_reserva__range=[start_dt, end_dt])
+            else:
+                # DateField: usar rangos de fecha directamente
+                qs_ing = Reservacion.objects.filter(fecha_reserva__range=[inicio, fin])
 
-        # 4) Convertir archivos a base64
-        for k, f in request.FILES.items():
-            try:
-                raw = f.read()
-                images[k] = base64.b64encode(raw).decode("ascii")
-            except Exception:
-                pass
+            top_ing = qs_ing.values("salon__nombre").annotate(total=Sum("precio_total")).order_by("-total")[:5]
+            labels_ing = [s["salon__nombre"] for s in top_ing]
+            vals_ing = [float(s.get("total") or 0.0) for s in top_ing]
+            
+            fig, ax = plt.subplots(figsize=(8,4), facecolor="#0F172A")
+            ax.set_facecolor("#1E293B")
+            ax.bar(labels_ing, vals_ing, color="#22C55E", edgecolor="#475569", linewidth=1.5)
+            ax.set_title("Salones - Ingresos (MXN)", color="#E2E8F0", fontweight="bold")
+            ax.tick_params(colors="#E2E8F0", rotation=30)
+            ax.spines['bottom'].set_color("#475569")
+            ax.spines['left'].set_color("#475569")
+            ax.spines['top'].set_visible(False)
+            ax.spines['right'].set_visible(False)
+            ax.grid(True, alpha=0.2, color="#475569", linestyle="--", axis='y')
+            buf_ing = io_module.BytesIO()
+            fig.savefig(buf_ing, format="png", bbox_inches="tight", dpi=150, facecolor="#0F172A")
+            plt.close(fig)
+            buf_ing.seek(0)
+            img_ing_b64 = base64.b64encode(buf_ing.getvalue()).decode("ascii")
+            images["ingresos"] = "data:image/png;base64," + img_ing_b64
 
-        # Mapear aliases
-        key_map = {
-            "bar": "reservaciones",
-            "pie": "salones_mas_reservados",
-            "line": "ingresos",
-            "reservaciones_por_periodo": "reservaciones",
-            "uso_de_salones": "salones_mas_reservados",
-            "usuarios_activos": "ingresos",
-            "reservaciones": "reservaciones",
-            "salones_mas_reservados": "salones_mas_reservados",
-            "ingresos": "ingresos",
-        }
+        except Exception as e:
+            traceback.print_exc()
+            print(f"Error generando imágenes: {e}")
 
-        normalized = {}
-        for k, v in images.items():
-            target = key_map.get(k, k)
-            if v:
-                normalized[target] = v
+        datos1_rows = [[s["nombre"], f"{float(s.get('calificacion') or 0.0):.2f}"] for s in top_cal]
+        datos2_rows = [[s["nombre"], f"${float(s.get('precio') or 0.0):.2f}"] for s in top_price]
+        datos3_rows = [[s["salon__nombre"], f"${float(s.get('total') or 0.0):.2f}"] for s in top_ing]
 
-        images = {k: v for k, v in normalized.items() if v}
-        print("descargar_pdf - images keys after mapping:", list(images.keys()))
-
-        required = ["reservaciones", "salones_mas_reservados", "ingresos"]
-        missing = [r for r in required if r not in images]
-        if missing:
-            return HttpResponse(
-                f"Faltan imágenes para: {', '.join(missing)}.",
-                status=400,
-            )
-
-        # Obtener periodo del query string O del POST
-        periodo = request.POST.get("periodo") or request.GET.get("periodo", "semana")
-        
-        # --- Generar charts_data según periodo ---
-        now_dt = timezone.now().date()
-        
-        if periodo == "semana":
-            inicio = now_dt - timedelta(days=now_dt.weekday())
-            dias_nombres = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"]
-            datos_periodo = []
-            for i in range(7):
-                d = inicio + timedelta(days=i)
-                total = Reservacion.objects.filter(fecha_reserva=d).count()
-                datos_periodo.append({"Etiqueta": dias_nombres[i], "Valor": total})
-        else:  # mes
-            mes_actual = now_dt.month
-            año_actual = now_dt.year
-            rangos = [(1, 5, "1-5"), (6, 10, "6-10"), (11, 15, "11-15"), (16, 20, "16-20"), (21, 25, "21-25"), (26, 31, "26-31")]
-            datos_periodo = []
-            for start, end, label in rangos:
-                total = Reservacion.objects.filter(
-                    fecha_reserva__year=año_actual,
-                    fecha_reserva__month=mes_actual,
-                    fecha_reserva__day__gte=start,
-                    fecha_reserva__day__lte=end,
-                ).count()
-                datos_periodo.append({"Etiqueta": label, "Valor": total})
-
-        # Uso de salones (top 10) - igual en ambos periodos
-        por_salon_qs = Reservacion.objects.values("salon__nombre").annotate(total=Count("id")).order_by("-total")[:10]
-        datos_salones = [{"Etiqueta": s["salon__nombre"], "Valor": s["total"]} for s in por_salon_qs]
-
-        # Ingresos por periodo
-        if periodo == "semana":
-            inicio_dt = inicio
-            fin_dt = now_dt
-            ingresos_list = []
-            dias_nombres = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"]
-            for i in range(7):
-                d = inicio + timedelta(days=i)
-                total_ingreso = (Reservacion.objects
-                                 .filter(fecha_reserva=d)
-                                 .aggregate(total=Sum("precio_total"))["total"] or 0.0)
-                ingresos_list.append({"Etiqueta": dias_nombres[i], "Valor": float(total_ingreso)})
-        else:  # mes
-            rangos = [(1, 5, "1-5"), (6, 10, "6-10"), (11, 15, "11-15"), (16, 20, "16-20"), (21, 25, "21-25"), (26, 31, "26-31")]
-            ingresos_list = []
-            for start, end, label in rangos:
-                total_ingreso = (Reservacion.objects
-                                 .filter(
-                                     fecha_reserva__year=now_dt.year,
-                                     fecha_reserva__month=now_dt.month,
-                                     fecha_reserva__day__gte=start,
-                                     fecha_reserva__day__lte=end
-                                 )
-                                 .aggregate(total=Sum("precio_total"))["total"] or 0.0)
-                ingresos_list.append({"Etiqueta": label, "Valor": float(total_ingreso)})
-
-        charts_data_real = [
-            {"nombre": "Reservaciones por periodo", "datos": datos_periodo},
-            {"nombre": "Uso de Salones", "datos": datos_salones},
-            {"nombre": "Ingresos por periodo", "datos": ingresos_list},
+        charts_data = [
+            {"nombre": "Salones con mejores reseñas", "tabla_headers": ["Salón","Calificación"], "tabla_rows": datos1_rows, "imagen": images.get("calificacion")},
+            {"nombre": "Salones más caros", "tabla_headers": ["Salón","Precio (MXN)"], "tabla_rows": datos2_rows, "imagen": images.get("precios")},
+            {"nombre": "Salones con más Ingresos", "tabla_headers": ["Salón","Ingresos (MXN)"], "tabla_rows": datos3_rows, "imagen": images.get("ingresos")},
         ]
 
-        # Determinar título según periodo
-        titulo_reporte = "Reporte Semanal de Reservaciones" if periodo == "semana" else "Reporte Mensual de Reservaciones"
+        return exportar_pdf(charts_data, images, fecha_descarga=fecha_descarga, titulo_reporte=f"Salones - {'Semanal' if periodo=='semana' else 'Mensual'}")
 
-        try:
-            return exportar_pdf(charts_data_real, images, fecha_descarga=fecha_descarga, titulo_reporte=titulo_reporte)
-        except ValueError as e:
-            return HttpResponse(str(e), status=400)
-        except Exception as e:
-            import traceback; traceback.print_exc()
-            return HttpResponse("Error al generar PDF", status=500)
-
+    # Reservaciones PDF (default)
     else:
-        return HttpResponse("Formato no válido", status=400)
+        if periodo == "semana":
+            from myapp.Descargas.export_pdf import exportar_pdf_reservaciones_semanal
+            return exportar_pdf_reservaciones_semanal(fecha_descarga=fecha_descarga)
+        else:
+            from myapp.Descargas.export_pdf import exportar_pdf_reservaciones_mensual
+            return exportar_pdf_reservaciones_mensual(fecha_descarga=fecha_descarga)
+
+@login_required
+def descargar_comprobante_reserva(request, reserva_id):
+    """Descarga el comprobante PDF de una reserva específica"""
+    from django.shortcuts import get_object_or_404
+    from myapp.models import Reservacion
+    
+    reserva = get_object_or_404(Reservacion, id=reserva_id, usuario=request.user)
+    
+    # Preparar datos de la reserva
+    charts_data = [
+        {
+            "nombre": "Detalles de la Reservación",
+            "tabla_headers": ["Campo", "Valor"],
+            "tabla_rows": [
+                ["Salón", reserva.salon.nombre],
+                ["Fecha", str(reserva.fecha_reserva)],
+                ["Estado", reserva.estado],
+                ["Precio Total", f"${reserva.precio_total}"],
+            ]
+        }
+    ]
+    
+    tz = pytz.timezone('America/Mexico_City')
+    now_local = timezone.now().astimezone(tz)
+    fecha_descarga = now_local.strftime("%d/%m/%Y %H:%M:%S")
+    
+    return exportar_pdf(charts_data, {}, fecha_descarga=fecha_descarga, titulo_reporte=f"Comprobante - Reservación #{reserva.id}")
+

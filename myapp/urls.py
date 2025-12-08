@@ -39,8 +39,26 @@ from myapp.views.admin_views import (
 )
 
 # --- Export / Descargas ---
-from myapp.views.export_views import descargar_reportes, dashboard_export
-from myapp.Descargas import export_charts
+from myapp.views.export_views import descargar_reportes, dashboard_export, descargar_comprobante_reserva
+from myapp.Descargas.export_csv import (
+    exportar_csv,
+    exportar_csv_reservaciones_semanal,
+    exportar_csv_reservaciones_mensual,
+    exportar_csv_usuarios_semanal,
+    exportar_csv_usuarios_mensual
+)
+from myapp.Descargas.export_xlsx import (
+    exportar_xlsx_nativo,
+    exportar_xlsx_reservaciones_semanal,
+    exportar_xlsx_reservaciones_mensual
+)
+from myapp.Descargas.export_pdf import (
+    exportar_pdf,
+    exportar_pdf_reservaciones_semanal,
+    exportar_pdf_reservaciones_mensual,
+    exportar_pdf_usuarios_semanal,
+    exportar_pdf_usuarios_mensual
+)
 
 # --- Chart / API views ---
 from myapp.views.chart_views import (
@@ -190,13 +208,8 @@ urlpatterns = [
     # ==================== DESCARGAS ========================
     # ======================================================
     path('descargar/<str:formato>/', descargar_reportes, name='descargar_reportes'),
-    path('descargar/csv/', export_charts.descargar_csv, name='descargar_csv'),
-    path('descargar/xlsx/', export_charts.descargar_xlsx, name='descargar_xlsx'),
-    path('descargar/pdf/', export_charts.descargar_pdf, name='descargar_pdf'),
+    path('descargar/comprobante/<int:reserva_id>/', descargar_comprobante_reserva, name='descargar_comprobante_reserva'),
     
-    # NUEVO — RESERVACIONES SEMANAL
-    path('descargar/periodo/', export_charts.descargar_reservaciones_periodo, name='descargar_reservaciones_periodo'),
-
     # ======================================================
     # ===================== DRF ROUTER =====================
     # ======================================================

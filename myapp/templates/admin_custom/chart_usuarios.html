@@ -28,7 +28,7 @@
 
     <!-- 3️⃣ USUARIOS MÁS ACTIVOS (Barras) -->
     <div class="bg-gradient-to-b from-gray-800 to-gray-900 rounded-xl p-6 border border-gray-700 shadow-lg h-64 w-[640px] ml-1">
-      <h5 class="text-gray-400 text-sm mb-2">Usuarios más activos</h5>
+      <h5 class="text-gray-400 text-sm mb-2">Usuarios con mas Reservaciones</h5>
       <div class="h-full w-full">
         <canvas id="usuariosBarChart" class="h-full w-full"></canvas>
       </div>
@@ -59,16 +59,7 @@
         </div>
       </div>
 
-      <!-- Grupo: Análisis -->
-      <div class="flex flex-col items-start space-y-2">
-        <span class="text-gray-300 font-medium text-lg">Análisis</span>
-        <div class="flex space-x-3">
-          <button id="btnMejores" class="filtro-modo px-4 py-2 bg-green-600 rounded-lg text-white font-semibold text-sm hover:bg-green-500 transition">🏆 Mejor</button>
-          <button id="btnPeores" class="filtro-modo px-4 py-2 bg-gray-700 rounded-lg text-gray-200 font-semibold text-sm hover:bg-gray-600 transition">⚠️ Peor</button>
-        </div>
-      </div>
-
-      <!-- Grupo: Descargar -->
+      <!-- Grupo: Descargar (sin Análisis/Mejor-Peor) -->
       <div class="flex flex-col items-start space-y-2">
         <span class="text-gray-300 font-medium text-lg">Descargar</span>
         <div class="flex space-x-3">
@@ -92,12 +83,12 @@ canvas { display: block; max-width: 100%; height: auto; }
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 let periodo = "semana";
-let modo = "mejores";
-
-let pieChart, lineChart, barChart;
+const TIPO = "usuarios";
+  
+let pieChart, usuariosBarChart, ingresosBarChart; // renombrado: dos barras
 
 async function cargarDatos() {
-  const res = await fetch(`/api/datos_usuarios/?periodo=${periodo}&modo=${modo}`);
+  const res = await fetch(`/api/datos_usuarios/?periodo=${periodo}`);
   const data = await res.json();
   actualizarGraficas(data);
 }
@@ -109,7 +100,7 @@ function actualizarGraficas(data) {
 
   // --- PIE CHART ---
   const pieCtx = document.getElementById("usuariosPieChart").getContext("2d");
-  if(pieChart) pieChart.destroy();
+  if (pieChart) pieChart.destroy();
 
   const labels = nuevos.map(u => u.fecha);
   const filledData = nuevos.map(u => parseInt(u.total || 0));
@@ -142,96 +133,137 @@ function actualizarGraficas(data) {
           <strong style="margin-left:6px;">${filledData[i]}</strong>
       </div>
     `;
-}).join("");
+  }).join("");
 
+  // --- INGRESOS (AHORA BARRAS) ---
+  const ingresosCtx = document.getElementById("usuariosLineChart").getContext("2d");
+  if (ingresosBarChart) ingresosBarChart.destroy();
 
-  // --- LINE CHART ---
-  // --- LINE CHART ---
-const lineCtx = document.getElementById("usuariosLineChart").getContext("2d");
-if (lineChart) lineChart.destroy();
-
-lineChart = new Chart(lineCtx, {
-  type: "line",
-  data: {
-    labels: ingresos.map(u => u.usuario),
-    datasets: [{
-      label: "Ingresos (MXN)",
-      data: ingresos.map(u => parseFloat(u.total)),
-      borderColor: "#22C55E",
-      backgroundColor: "rgba(34,197,94,0.2)",
-      tension: 0.3,
-      fill: true
-    }]
-  },
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,   // 🔥 Hace que la gráfica se expanda correctamente
-
-    plugins: {
-      legend: { labels: { color: "#ddd" } }
+  ingresosBarChart = new Chart(ingresosCtx, {
+    type: "bar",
+    data: {
+      labels: ingresos.map(u => u.usuario),
+      datasets: [{
+        label: "Ingresos (MXN)",
+        data: ingresos.map(u => parseFloat(u.total)),
+        backgroundColor: "#22C55E"
+      }]
     },
-
-    layout: { padding: 10 },
-
-    scales: {
-      x: { ticks: { color: "#ccc" } },
-      y: { ticks: { color: "#ccc" } }
-    }
-  }
-});
-
-
-  // --- BAR CHART ---
-  // --- BAR CHART ---
-const barCtx = document.getElementById("usuariosBarChart").getContext("2d");
-if (barChart) barChart.destroy();
-
-barChart = new Chart(barCtx, {
-  type: "bar",
-  data: {
-    labels: activos.map(u => u.usuario),
-    datasets: [{
-      label: "Reservaciones",
-      data: activos.map(u => u.total),
-      backgroundColor: "#3B82F6"
-    }]
-  },
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,  // 🔥 Hace que use todo el ancho y alto del contenedor
-    
-    plugins: {
-      legend: {
-        labels: { color: "#ddd" }
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: "#ddd" } } },
+      layout: { padding: 10 },
+      scales: {
+        x: { ticks: { color: "#ccc" }, position: 'bottom' },
+        y: { ticks: { color: "#ccc" } }
       }
-    },
-
-    layout: { padding: 10 },
-
-    scales: {
-      x: { ticks: { color: "#ccc" } },
-      y: { ticks: { color: "#ccc" } }
     }
-  }
-});
-
-}
-
-function activarBoton(grupo, activoId){
-  document.querySelectorAll(`.${grupo}`).forEach(btn=>{
-    if(btn.id===activoId){ btn.classList.add("bg-indigo-600","text-white"); btn.classList.remove("bg-gray-700","text-gray-200"); }
-    else { btn.classList.remove("bg-indigo-600","text-white"); btn.classList.add("bg-gray-700","text-gray-200"); }
   });
+
+  // --- BAR CHART (Usuarios activos) ---
+  const barCtx = document.getElementById("usuariosBarChart").getContext("2d");
+  if (usuariosBarChart) usuariosBarChart.destroy();
+
+  usuariosBarChart = new Chart(barCtx, {
+    type: "bar",
+    data: {
+      labels: activos.map(u => u.usuario),
+      datasets: [{
+        label: "Reservaciones",
+        data: activos.map(u => u.total),
+        backgroundColor: "#3B82F6"
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: "#ddd" } } },
+      layout: { padding: 10 },
+      scales: {
+        x: { ticks: { color: "#ccc" }, position: 'bottom' },
+        y: { ticks: { color: "#ccc" } }
+      }
+    }
+  });
+
 }
 
-document.getElementById("btnSemana").onclick = ()=>{ periodo="semana"; activarBoton("filtro-periodo","btnSemana"); cargarDatos(); };
-document.getElementById("btnMes").onclick = ()=>{ periodo="mes"; activarBoton("filtro-periodo","btnMes"); cargarDatos(); };
-document.getElementById("btnMejores").onclick = ()=>{ modo="mejores"; activarBoton("filtro-modo","btnMejores"); cargarDatos(); };
-document.getElementById("btnPeores").onclick = ()=>{ modo="peores"; activarBoton("filtro-modo","btnPeores"); cargarDatos(); };
+function activarBotonPeriodo(){
+    const semana = document.getElementById("btnSemana");
+    const mes = document.getElementById("btnMes");
+    if (periodo === "semana") { semana.classList.replace("bg-gray-700","bg-indigo-600"); mes.classList.replace("bg-indigo-600","bg-gray-700"); }
+    else { mes.classList.replace("bg-gray-700","bg-indigo-600"); semana.classList.replace("bg-indigo-600","bg-gray-700"); }
+  }
 
-// Inicial
-cargarDatos();
+  document.getElementById("btnSemana").onclick = ()=>{ periodo="semana"; activarBotonPeriodo(); cargarDatos(); };
+  document.getElementById("btnMes").onclick = ()=>{ periodo="mes"; activarBotonPeriodo(); cargarDatos(); };
+
+  // --- Descargas: XLSX / CSV / PDF (mismo comportamiento que Reservaciones, con tipo=usuarios) ---
+  document.getElementById("btnCSV").addEventListener("click", () => {
+    window.location.href = "{% url 'descargar_reportes' 'csv' %}" + "?periodo=" + periodo + "&tipo=" + TIPO;
+  });
+  
+  document.getElementById("btnXLSX").addEventListener("click", () => {
+    window.location.href = "{% url 'descargar_reportes' 'xlsx' %}" + "?periodo=" + periodo + "&tipo=" + TIPO;
+  });
+  
+  // PDF: enviar imágenes como form-data (bar,pie,line) + tipo + periodo
+  function getChartImages() {
+    return {
+      bar: usuariosBarChart ? usuariosBarChart.toBase64Image() : null,
+      pie: pieChart ? pieChart.toBase64Image() : null,
+      line: ingresosBarChart ? ingresosBarChart.toBase64Image() : null  // mantiene clave 'line' por compatibilidad
+    };
+  }
+  
+  function getCookie(name) {
+    const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+    return v ? v.pop() : '';
+  }
+  
+  document.getElementById("btnPDF").addEventListener("click", async () => {
+    try {
+      const images = getChartImages();
+      const formData = new FormData();
+      formData.append("bar", images.bar);
+      formData.append("pie", images.pie);
+      formData.append("line", images.line);
+      formData.append("periodo", periodo);
+      formData.append("tipo", TIPO);
+      formData.append("fecha", new Date().toLocaleString());
+  
+      const response = await fetch("{% url 'descargar_reportes' 'pdf' %}", {
+        method: "POST",
+        body: formData,
+        credentials: "same-origin",
+        headers: { "X-CSRFToken": getCookie("csrftoken") }
+      });
+  
+      if (!response.ok) {
+        const txt = await response.text();
+        console.error("Error al generar PDF:", response.status, txt);
+        alert("Error al generar PDF: " + txt);
+        return;
+      }
+  
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "usuarios_periodo.pdf";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Error en descarga PDF:", err);
+      alert("Error al generar PDF");
+    }
+  });
+  
+ // Inicial
+ cargarDatos();
 </script>
 
 {% endblock %}
- 

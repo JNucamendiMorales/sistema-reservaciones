@@ -27,7 +27,25 @@ from rest_framework import viewsets
 from datetime import datetime,timedelta
 from .forms import RegistroForm,ReservacionForm,SalonForm,ReservacionAdminForm
 from decimal import Decimal
-from myapp.Descargas.export_charts import exportar_csv,exportar_pdf,exportar_xlsx_nativo
+from myapp.Descargas.export_csv import (
+    exportar_csv,
+    exportar_csv_reservaciones_semanal,
+    exportar_csv_reservaciones_mensual,
+    exportar_csv_usuarios_semanal,
+    exportar_csv_usuarios_mensual
+)
+from myapp.Descargas.export_xlsx import (
+    exportar_xlsx_nativo,
+    exportar_xlsx_reservaciones_semanal,
+    exportar_xlsx_reservaciones_mensual
+)
+from myapp.Descargas.export_pdf import (
+    exportar_pdf,
+    exportar_pdf_reservaciones_semanal,
+    exportar_pdf_reservaciones_mensual,
+    exportar_pdf_usuarios_semanal,
+    exportar_pdf_usuarios_mensual
+)
 #from weasyprint import HTML
 #from xhtml2pdf import pisa
 #from reportlab.pdfgen import canvas

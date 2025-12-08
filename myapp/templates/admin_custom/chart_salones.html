@@ -10,7 +10,7 @@
   <!-- === GRID PRINCIPAL === -->
   <div class="flex flex-wrap gap-6">
 
-    <!-- 1️⃣ TOP 5 CALIFICACIÓN (Barras verticales) -->
+    <!-- 1️ TOP 5 CALIFICACIÓN (Barras verticales) -->
     <div
       class="bg-gradient-to-b from-gray-800 to-gray-900 rounded-xl p-6 border border-gray-700 shadow-lg h-[260px] w-[590px]">
       <h5 class="text-gray-400 text-sm mb-4">Salones con mejores reseñas</h5>
@@ -19,7 +19,7 @@
       </div>
     </div>
 
-    <!-- 2️⃣ TOP 5 PRECIOS (Barras horizontales) -->
+    <!-- 2️ TOP 5 PRECIOS (Barras horizontales) -->
     <div
       class="bg-gradient-to-b from-gray-800 to-gray-900 rounded-xl p-6 border border-gray-700 shadow-lg h-[260px] w-[650px]">
       <h5 class="text-gray-400 text-sm mb-4">Salones mas caros</h5>
@@ -58,19 +58,6 @@
           <button id="btnMes"
             class="filtro-periodo px-4 py-2 rounded-lg text-gray-200 font-semibold text-sm bg-gray-700 hover:bg-gray-600 transition">📅
             Mensual</button>
-        </div>
-      </div>
-
-      <!-- Grupo: Análisis -->
-      <div class="flex flex-col items-start space-y-2">
-        <span class="text-gray-300 font-medium text-lg">Análisis</span>
-        <div class="flex space-x-3">
-          <button id="btnMejores"
-            class="filtro-modo px-4 py-2 bg-green-600 rounded-lg text-white font-semibold text-sm hover:bg-green-500 transition">🏅
-            Mejores</button>
-          <button id="btnPeores"
-            class="filtro-modo px-4 py-2 bg-gray-700 rounded-lg text-gray-200 font-semibold text-sm hover:bg-gray-600 transition">⚠️
-            Peores</button>
         </div>
       </div>
 
@@ -127,7 +114,6 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
   let periodo = "semana";
-  let modo = "mejores";
 
   let ratingChart = null;
   let priceChart = null;
@@ -158,26 +144,31 @@
   }
 
   async function cargarSalonesCharts() {
-    const q = `?periodo=${encodeURIComponent(periodo)}&modo=${encodeURIComponent(modo)}`;
+    const q = `?periodo=${encodeURIComponent(periodo)}`;
 
-    // Top calificación
-    try { renderRatingChart(await fetchJson(`/api/salones/top-calificacion${q}`)); } 
-    catch { renderRatingChart([]); }
-
-    // Top precio
-    try { renderPriceChart(await fetchJson(`/api/salones/top-precio${q}`)); } 
-    catch { renderPriceChart([]); }
-
-    // Top ingresos
-    try { renderIncomeChart(await fetchJson(`/api/salones/top-ingresos${q}`)); } 
-    catch { renderIncomeChart(null); }
+    try {
+      const datos = await fetchJson(`/api/datos_salones/${q}`);
+      
+      // Gráfica 1: Calificación
+      renderRatingChart(datos.top_calificacion);
+      
+      // Gráfica 2: Precios
+      renderPriceChart(datos.top_precios);
+      
+      // Gráfica 3: Ingresos (barras con salones y periodos)
+      renderIncomeChart(datos.top_ingresos);
+    } catch (err) {
+      console.error("Error cargando datos salones:", err);
+      renderRatingChart([]);
+      renderPriceChart([]);
+      renderIncomeChart([]);
+    }
   }
 
   function renderRatingChart(data) {
+    // data es array: [{nombre, calificacion}, ...]
     let items = Array.isArray(data) ? data.slice(0, 5) : [];
-    if (!items.length && data?.results) items = data.results.slice(0,5);
     while(items.length<5) items.push({nombre:"-", calificacion:0});
-    items.sort((a,b)=>parseFloat(b.calificacion||0)-parseFloat(a.calificacion||0));
 
     const labels = items.map(s=>s.nombre);
     const values = items.map(s=>parseFloat(s.calificacion||0));
@@ -190,17 +181,16 @@
       options:{
         indexAxis:'y',
         responsive:true, maintainAspectRatio:false,
-        plugins:{legend:{display:false}, tooltip:{callbacks:{label:ctx=>` ${ctx.raw} ⭐`}}},
+        plugins:{legend:{display:false}, tooltip:{callbacks:{label:ctx=>` ${ctx.raw.toFixed(1)} ⭐`}}},
         scales:{x:{beginAtZero:true, max:5, ticks:{color:"#ccc", stepSize:0.5}}, y:{ticks:{color:"#ccc"}}}
       }
     });
   }
 
   function renderPriceChart(data){
-    let items = Array.isArray(data)?data.slice(0,5):[];
-    if(!items.length && data?.results) items=data.results.slice(0,5);
-    while(items.length<5) items.push({nombre:'-', precio:0});
-    items.sort((a,b)=>parseFloat(b.precio||0)-parseFloat(a.precio||0));
+    // data es array: [{nombre, precio}, ...]
+    let items = Array.isArray(data) ? data.slice(0, 5) : [];
+    while(items.length<5) items.push({nombre:"-", precio:0});
 
     const labels = items.map(s=>s.nombre);
     const values = items.map(s=>parseFloat(s.precio||0));
@@ -214,70 +204,75 @@
         indexAxis:'y',
         responsive:true, maintainAspectRatio:false,
         plugins:{legend:{display:false}, tooltip:{callbacks:{label:ctx=>` $ ${Number(ctx.raw).toLocaleString()}`}}},
-        scales:{x:{ticks:{color:"#ccc", stepSize:10000, callback:v=>v?Number(v).toLocaleString():v}}, y:{ticks:{color:"#ccc"}}}
+        scales:{x:{ticks:{color:"#ccc", callback:v=>v?Number(v).toLocaleString():v}}, y:{ticks:{color:"#ccc"}}}
       }
     });
   }
 
   function renderIncomeChart(payload){
-  const defaultSemana = ["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"];
-  const defaultMes = ["1-5","6-10","11-15","16-20","21-25","26-31"];
-  let labels = periodo==="semana"?defaultSemana:defaultMes;
-  let series=[];
+    // payload es array: [{salon, labels, data}, ...]
+    const defaultSemana = ["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"];
+    const defaultMes = ["1-5","6-10","11-15","16-20","21-25","26-31"];
+    
+    let series = [];
+    let labels = periodo==="semana"?defaultSemana:defaultMes;
 
-  if(!payload){ for(let i=0;i<5;i++) series.push({salon:'-', data:labels.map(()=>0)}); }
-  else if(Array.isArray(payload)){
-    series = payload.slice(0,5);
-    labels = series[0]?.labels || labels;
-    series = series.map(s=>({salon:s.salon||s.nombre||'-', data:(s.data||[]).slice(0,labels.length).concat(Array(Math.max(0,labels.length-(s.data||[]).length)).fill(0))}));
-  } else {
-    labels = payload.labels||labels;
-    if(Array.isArray(payload.series)) series = payload.series.slice(0,5).map(s=>({salon:s.salon||s.nombre||'-', data:(s.data||[]).slice(0,labels.length).concat(Array(Math.max(0,labels.length-(s.data||[]).length)).fill(0))}));
-  }
-
-  if(series.length<5){ for(let i=series.length;i<5;i++) series.push({salon:'-', data:labels.map(()=>0)});}
-  if(modo==="peores") series = series.reverse();
-
-  const datasets = series.map((s,idx)=>{
-    const total = s.data.reduce((a,b)=>a+b,0); // calcular total
-    return {
-      label:`${s.salon}: $${total.toLocaleString()}`, // agregar total al label
-      data:s.data.map(v=>parseFloat(v||0)),
-      borderColor:COLORS[idx%COLORS.length],
-      backgroundColor:hexToRgba(COLORS[idx%COLORS.length],0.12),
-      tension:0.25, fill:false, pointRadius:4, pointHoverRadius:6
+    if(!payload || !Array.isArray(payload)) {
+      // Sin datos: llenar con salones vacíos
+      for(let i=0;i<5;i++) series.push({salon:'-', data:labels.map(()=>0)});
+    } else {
+      // Usar datos reales
+      series = payload.slice(0, 5).map(s=>({
+        salon: s.salon || '-',
+        labels: s.labels || labels,
+        data: s.data || labels.map(()=>0)
+      }));
+      labels = series[0]?.labels || labels;
     }
-  });
 
-  const ctx = document.getElementById("salonesIncomeChart").getContext("2d");
-  if(incomeChart) incomeChart.destroy();
-  incomeChart = new Chart(ctx,{
-    type:"line",
-    data:{labels, datasets},
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      plugins:{
-        legend:{
-          display:true,
-          position:'right',
-          align:'start',
-          labels:{color:"#ddd", boxWidth:25, boxHeight:12, padding:24}
-        },
-        tooltip:{
-          callbacks:{
-            title: items => items[0]?.dataset.label.split(':')[0] || '', // mostrar solo nombre en tooltip
-            label: ctx => `${ctx.dataset.label.split(':')[0]}: $ ${Number(ctx.raw).toLocaleString()}`
-          }
-        }
-      },
-      scales:{
-        x:{ticks:{color:"#ccc"}},
-        y:{ticks:{color:"#ccc", stepSize: 10000, callback:v=>v?Number(v).toLocaleString():v}}
+    if(series.length<5) { 
+      for(let i=series.length;i<5;i++) series.push({salon:'-', data:labels.map(()=>0)}); 
+    }
+
+    const datasets = series.map((s,idx)=>{
+      const total = s.data.reduce((a,b)=>a+b,0);
+      return {
+        label:`${s.salon}: $${Number(total).toLocaleString()}`,
+        data:s.data.map(v=>parseFloat(v||0)),
+        backgroundColor:COLORS[idx%COLORS.length],
+        borderColor:COLORS[idx%COLORS.length],
+        borderWidth:1,
+        borderSkipped:false
       }
-    }
-  });
-}
+    });
 
+    const ctx = document.getElementById("salonesIncomeChart").getContext("2d");
+    if(incomeChart) incomeChart.destroy();
+    incomeChart = new Chart(ctx,{
+      type:"bar",
+      data:{labels, datasets},
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        plugins:{
+          legend:{
+            display:true,
+            position:'right',
+            align:'start',
+            labels:{color:"#ddd", boxWidth:25, boxHeight:12, padding:24}
+          },
+          tooltip:{
+            callbacks:{
+              label: ctx => `$ ${Number(ctx.raw).toLocaleString()}`
+            }
+          }
+        },
+        scales:{
+          x:{ticks:{color:"#ccc"}},
+          y:{ticks:{color:"#ccc", callback:v=>v?Number(v).toLocaleString():v}}
+        }
+      }
+    });
+  }
 
   function hexToRgba(hex, alpha){
     const h = hex.replace('#',''), bigint=parseInt(h,16);
@@ -288,12 +283,74 @@
   // Button listeners
   document.getElementById("btnSemana").onclick = ()=>{ periodo="semana"; activarBoton("filtro-periodo","btnSemana"); cargarSalonesCharts(); };
   document.getElementById("btnMes").onclick = ()=>{ periodo="mes"; activarBoton("filtro-periodo","btnMes"); cargarSalonesCharts(); };
-  document.getElementById("btnMejores").onclick = ()=>{ modo="mejores"; activarBoton("filtro-modo","btnMejores"); cargarSalonesCharts(); };
-  document.getElementById("btnPeores").onclick = ()=>{ modo="peores"; activarBoton("filtro-modo","btnPeores"); cargarSalonesCharts(); };
+
+  // === DESCARGAS: XLSX / CSV / PDF ===
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+
+  document.getElementById("btnXLSX").addEventListener("click", () => {
+    const url = `/descargar/xlsx/?tipo=salones&periodo=${encodeURIComponent(periodo)}`;
+    window.location.href = url;
+  });
+
+  document.getElementById("btnCSV").addEventListener("click", () => {
+    const url = `/descargar/csv/?tipo=salones&periodo=${encodeURIComponent(periodo)}`;
+    window.location.href = url;
+  });
+
+  document.getElementById("btnPDF").addEventListener("click", async (e) => {
+    e.preventDefault();
+    const url = `/descargar/pdf/?tipo=salones&periodo=${encodeURIComponent(periodo)}`;
+    const csrf = getCookie('csrftoken');
+    
+    console.log("CSRF Token:", csrf); // DEBUG
+
+    try {
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrf
+        },
+        body: JSON.stringify({ periodo: periodo })
+      });
+      
+      if (!resp.ok) {
+        const text = await resp.text().catch(()=>"Sin detalles");
+        console.error("PDF error", resp.status, text);
+        alert(`Error generando PDF (${resp.status}). Revisa la consola del navegador.`);
+        return;
+      }
+      
+      const blob = await resp.blob();
+      const filename = `salones_${periodo}.pdf`;
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(link.href);
+    } catch (err) {
+      console.error("Error descargando PDF:", err);
+      alert("Error descargando PDF (ver consola).");
+    }
+  });
 
   // Initialize
   activarBoton("filtro-periodo","btnSemana");
-  activarBoton("filtro-modo","btnMejores");
   cargarSalonesCharts();
 </script>
 
